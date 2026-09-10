@@ -1,0 +1,139 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-primary: #4CAF50;
+    --color-primary-light: #81C784;
+    --color-primary-dark: #2E7D32;
+    --color-bg-start: #E8F5E9;
+    --color-bg-end: #C8E6C9;
+    --color-text: #212121;
+    --color-text-secondary: #546E7A;
+    --color-card-bg: rgba(255, 255, 255, 0.85);
+    --font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html, body {
+    height: 100%;
+    font-family: var(--font-family);
+    color: var(--color-text);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
+}
+
+/* --- Main container --- */
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+/* --- Badge --- */
+
+.badge {
+    display: inline-block;
+    padding: 0.4rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: var(--color-primary);
+    border-radius: 100px;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.35);
+}
+
+/* --- Title --- */
+
+.site-title {
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-primary-dark);
+    text-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* --- Info card --- */
+
+.info-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--color-card-bg);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.12);
+    backdrop-filter: blur(8px);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+}
+
+.info-row + .info-row {
+    border-top: 1px solid rgba(76, 175, 80, 0.15);
+}
+
+.info-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-secondary);
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
+    color: var(--color-primary-dark);
+    word-break: break-all;
+    text-align: right;
+}
+
+/* --- Footer --- */
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    background: rgba(76, 175, 80, 0.08);
+    border-top: 1px solid rgba(76, 175, 80, 0.12);
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 480px) {
+    .info-card {
+        padding: 1rem 1.25rem;
+    }
+
+    .footer {
+        flex-direction: column;
+        gap: 0.3rem;
+        text-align: center;
+    }
+}

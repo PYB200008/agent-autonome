@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SITE B - Load Balancing Kubernetes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        <div class="badge">SITE B</div>
+        <h1 class="site-title">SITE B</h1>
+        <div class="info-card">
+            <div class="info-row">
+                <span class="info-label">Hostname</span>
+                <span class="info-value" id="hostname">{{HOSTNAME}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Horodatage</span>
+                <span class="info-value" id="timestamp">--</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Requetes</span>
+                <span class="info-value" id="request-count">0</span>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <span>Load Balancing Kubernetes &mdash; Round Robin</span>
+        <span id="footer-timestamp">--</span>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
