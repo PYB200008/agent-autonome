@@ -5,7 +5,7 @@
   "updated_at": "2026-09-10",
   "author": "yugmerabtene",
   "status": "in_progress",
-  "current_phase": "3_manifestes_k8s",
+  "current_phase": "4_deploiement_lb",
   "phases": [
     {
       "id": "1_developpement_site",
@@ -44,7 +44,7 @@
       "id": "3_manifestes_k8s",
       "name": "Rédaction des manifestes Kubernetes",
       "description": "Deployments Site A (2 replicas) et Site B (2 replicas), Service LoadBalancer sessionAffinity None, ConfigMap, liveness/readiness probes.",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "devops-tester",
       "deliverables": [
         "k8s/deployment-site-a.yaml",
@@ -52,9 +52,9 @@
         "k8s/service-loadbalancer.yaml",
         "k8s/configmap.yaml"
       ],
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-09-10",
+      "completed_at": "2026-09-10",
+      "notes": "4 manifestes créés, relecture proofreader CONFORME. Label tier:web pour round robin."
     },
     {
       "id": "4_deploiement_lb",
@@ -113,6 +113,13 @@
       "verdict": "CONFORME_après_correction",
       "anomalies": 1,
       "notes": "Directive USER appuser manquante + port 80->8080 pour non-root. Corrigé."
+    },
+    {
+      "phase": "3_manifestes_k8s",
+      "date": "2026-09-10",
+      "verdict": "CONFORME",
+      "anomalies": 0,
+      "notes": "Aucune anomalie. Round robin, failover, 2 replicas, probes, securityContext conformes."
     }
   ],
   "commits": [
@@ -124,6 +131,11 @@
     {
       "hash": "pending",
       "message": "Ajoute les Dockerfiles et nginx.conf pour la Phase 2",
+      "date": "2026-09-10"
+    },
+    {
+      "hash": "pending",
+      "message": "Ajoute les manifestes Kubernetes (Deployments, Service LB, ConfigMap) pour la Phase 3",
       "date": "2026-09-10"
     }
   ]

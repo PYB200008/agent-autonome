@@ -1,0 +1,18 @@
+# LoadBalancer Service — round robin across all pods labeled tier: web.
+# Covers 2 replicas of Site A + 2 replicas of Site B = 4 pods total.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: site-loadbalancer
+  namespace: default
+spec:
+  type: LoadBalancer
+  sessionAffinity: None
+  selector:
+    tier: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP

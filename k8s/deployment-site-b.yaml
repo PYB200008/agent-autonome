@@ -1,0 +1,56 @@
+# Deployment for Site B — 2 replicas behind the shared LoadBalancer.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site-b
+  namespace: default
+  labels:
+    app: site-b
+    tier: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: site-b
+  template:
+    metadata:
+      labels:
+        app: site-b
+        tier: web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+      containers:
+        - name: site-b
+          image: site-b:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+              readOnly: true
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
