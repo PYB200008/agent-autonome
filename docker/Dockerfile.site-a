@@ -1,0 +1,37 @@
+# =============================================================================
+# Dockerfile — Site A
+# Lightweight nginx:alpine image serving the static Site A.
+# Target size: < 50 MB.  Runs as non-root user after startup.
+# =============================================================================
+
+FROM nginx:alpine
+
+# Metadata labels
+LABEL app="site-a" \
+      version="1.0" \
+      maintainer="opencode-team"
+
+# --- Create a dedicated non-root user --------------------------------------- #
+RUN adduser -D -u 1001 appuser
+
+# --- Copy static site files ------------------------------------------------- #
+COPY site-a/index.html /usr/share/nginx/html/index.html
+COPY site-a/style.css  /usr/share/nginx/html/style.css
+COPY site-a/script.js  /usr/share/nginx/html/script.js
+
+# --- Copy shared nginx configuration ---------------------------------------- #
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+# --- Prepare entrypoint script ---------------------------------------------- #
+# The script replaces the {{HOSTNAME}} placeholder in index.html with the
+# actual container hostname at startup, then launches nginx in the foreground.
+RUN printf '#!/bin/sh\nset -euo pipefail\nsed -i "s/{{HOSTNAME}}/${HOSTNAME}/g" /usr/share/nginx/html/index.html\nexec nginx -g "daemon off;"\n' \
+      > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
+
+# --- Ensure correct ownership of static files ------------------------------- #
+RUN chown -R appuser:appuser /usr/share/nginx/html
+
+EXPOSE 80
+
+ENTRYPOINT ["/entrypoint.sh"]
