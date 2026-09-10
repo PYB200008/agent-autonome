@@ -5,7 +5,7 @@
   "updated_at": "2026-09-10",
   "author": "yugmerabtene",
   "status": "in_progress",
-  "current_phase": "4_deploiement_lb",
+  "current_phase": "5_tests_validation",
   "phases": [
     {
       "id": "1_developpement_site",
@@ -60,15 +60,15 @@
       "id": "4_deploiement_lb",
       "name": "Déploiement et configuration du Load Balancer",
       "description": "Application des manifestes, exposition du Service, récupération de l'IP LoadBalancer, vérification round robin.",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "devops-tester",
       "deliverables": [
         "scripts/build.sh",
         "scripts/deploy.sh"
       ],
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-09-10",
+      "completed_at": "2026-09-10",
+      "notes": "3 scripts créés (build, deploy, test), relecture proofreader CONFORME après corrections (bug 5xx + accents)."
     },
     {
       "id": "5_tests_validation",
@@ -120,6 +120,13 @@
       "verdict": "CONFORME",
       "anomalies": 0,
       "notes": "Aucune anomalie. Round robin, failover, 2 replicas, probes, securityContext conformes."
+    },
+    {
+      "phase": "4_deploiement_lb",
+      "date": "2026-09-10",
+      "verdict": "CONFORME_après_correction",
+      "anomalies": 28,
+      "notes": "1 bug fonctionnel (comparaison '5xx' au lieu de regex) + 27 accents manquants. Tous corrigés."
     }
   ],
   "commits": [
@@ -136,6 +143,11 @@
     {
       "hash": "pending",
       "message": "Ajoute les manifestes Kubernetes (Deployments, Service LB, ConfigMap) pour la Phase 3",
+      "date": "2026-09-10"
+    },
+    {
+      "hash": "pending",
+      "message": "Ajoute les scripts build, deploy et test-loadbalancer pour la Phase 4",
       "date": "2026-09-10"
     }
   ]

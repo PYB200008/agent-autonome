@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # build.sh — Construction des images Docker pour Site A et Site B.
-# Executes from the project root: docker build -f docker/Dockerfile.site-<x> .
+# S'exécuter depuis la racine du projet : docker build -f docker/Dockerfile.site-<x> .
 # =============================================================================
 
 set -euo pipefail
@@ -37,7 +37,7 @@ echo ""
 echo "=== Construction de l'image ${IMAGE_B} ==="
 docker build -f "${DOCKERFILE_B}" -t "${IMAGE_B}" "${BUILD_CONTEXT}"
 
-# --- Affichage des tailles et verification --------------------------------- #
+# --- Affichage des tailles et vérification --------------------------------- #
 
 echo ""
 echo "=== Tailles des images ==="
@@ -45,12 +45,12 @@ docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}\t{{.ID}}" \
     "${IMAGE_A}" "${IMAGE_B}"
 
 echo ""
-echo "=== Verification de la taille (< ${SIZE_LIMIT_MB} Mo) ==="
+echo "=== Vérification de la taille (< ${SIZE_LIMIT_MB} Mo) ==="
 warnings=0
 
 for image in "${IMAGE_A}" "${IMAGE_B}"; do
     size_mb=$(get_image_size_mb "$image")
-    # Comparaison numerique avec bc ou awk
+    # Comparaison numérique avec bc ou awk
     over_limit=$(echo "${size_mb} > ${SIZE_LIMIT_MB}" | bc -l 2>/dev/null || echo "0")
     if [ "$over_limit" = "1" ]; then
         echo "WARNING: L'image ${image} fait ${size_mb} Mo (limite: ${SIZE_LIMIT_MB} Mo)"
@@ -62,11 +62,11 @@ done
 
 echo ""
 if [ "$warnings" -gt 0 ]; then
-    echo "ATTENTION: ${warnings} image(s) depassent la limite de ${SIZE_LIMIT_MB} Mo."
+    echo "ATTENTION: ${warnings} image(s) dépassent la limite de ${SIZE_LIMIT_MB} Mo."
     exit 1
 else
     echo "Toutes les images respectent la limite de ${SIZE_LIMIT_MB} Mo."
 fi
 
 echo ""
-echo "=== Build termine avec succes ==="
+echo "=== Build terminé avec succès ==="
