@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/big-pickle",
+  "default_agent": "orchestrator",
+  "instructions": [".opencode/CONTEXT.md", "AGENTS.md"],
+  "agent": {},
+  "references": {
+    "context": {
+      "path": ".opencode/CONTEXT.md",
+      "description": "Règles de format et contexte du projet"
+    },
+    "tracking": {
+      "path": ".opencode/tracking.json",
+      "description": "Suivi de progression du projet"
+    }
+  }
+}
