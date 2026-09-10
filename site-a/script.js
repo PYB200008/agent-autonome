@@ -3,10 +3,10 @@
 
     /* -----------------------------------------------------------
      * Site A - Script vanilla
-     * - Remplace le placeholder {{HOSTNAME}} par la valeur injectee
-     *   par sed au demarrage du conteneur (ou par l'environnement).
-     * - Affiche un horodatage en temps reel.
-     * - Compteur de requetes (local a cette session).
+     * - Remplace le placeholder {{HOSTNAME}} par la valeur injectée
+     *   par sed au démarrage du conteneur (ou par l'environnement).
+     * - Affiche un horodatage en temps réel.
+     * - Compteur de requêtes (local à cette session).
      * ----------------------------------------------------------- */
 
     var hostnameEl = document.getElementById("hostname");
@@ -20,7 +20,7 @@
 
     function resolveHostname() {
         var raw = hostnameEl.textContent.trim();
-        /* Si le placeholder n'a pas ete remplace par sed, on lit
+        /* Si le placeholder n'a pas été remplacé par sed, on lit
            la variable d'environnement via une astuce DOM. */
         if (raw === "{{HOSTNAME}}") {
             raw = "unknown";

@@ -1,0 +1,118 @@
+{
+  "project": "site-static-k8s-loadbalancer",
+  "version": "1.0.0",
+  "created_at": "2026-09-10",
+  "updated_at": "2026-09-10",
+  "author": "yugmerabtene",
+  "status": "in_progress",
+  "current_phase": "2_dockerisation",
+  "phases": [
+    {
+      "id": "1_developpement_site",
+      "name": "Développement du site statique (Site A & Site B)",
+      "description": "HTML5 / CSS3 / JS vanilla, affichage SITE A (bleu) et SITE B (vert), hostname, horodatage.",
+      "status": "completed",
+      "assigned_to": "frontend-dev",
+      "deliverables": [
+        "site-a/index.html",
+        "site-a/style.css",
+        "site-a/script.js",
+        "site-b/index.html",
+        "site-b/style.css",
+        "site-b/script.js"
+      ],
+      "started_at": "2026-09-10",
+      "completed_at": "2026-09-10",
+      "notes": "6 fichiers créés, relecture proofreader CONFORME, corrections accents appliquées."
+    },
+    {
+      "id": "2_dockerisation",
+      "name": "Dockerisation des deux sites",
+      "description": "Dockerfile.site-a et Dockerfile.site-b basés sur nginx:alpine, nginx.conf commun, images < 50 Mo.",
+      "status": "pending",
+      "assigned_to": "devops-tester",
+      "deliverables": [
+        "docker/Dockerfile.site-a",
+        "docker/Dockerfile.site-b",
+        "docker/nginx.conf"
+      ],
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    {
+      "id": "3_manifestes_k8s",
+      "name": "Rédaction des manifestes Kubernetes",
+      "description": "Deployments Site A (2 replicas) et Site B (2 replicas), Service LoadBalancer sessionAffinity None, ConfigMap, liveness/readiness probes.",
+      "status": "pending",
+      "assigned_to": "devops-tester",
+      "deliverables": [
+        "k8s/deployment-site-a.yaml",
+        "k8s/deployment-site-b.yaml",
+        "k8s/service-loadbalancer.yaml",
+        "k8s/configmap.yaml"
+      ],
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    {
+      "id": "4_deploiement_lb",
+      "name": "Déploiement et configuration du Load Balancer",
+      "description": "Application des manifestes, exposition du Service, récupération de l'IP LoadBalancer, vérification round robin.",
+      "status": "pending",
+      "assigned_to": "devops-tester",
+      "deliverables": [
+        "scripts/build.sh",
+        "scripts/deploy.sh"
+      ],
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    {
+      "id": "5_tests_validation",
+      "name": "Tests fonctionnels et de failover",
+      "description": "Script de test round robin, suppression de pod, scale down/up, vérification probes, rapport de tests.",
+      "status": "pending",
+      "assigned_to": "devops-tester",
+      "deliverables": [
+        "scripts/test-loadbalancer.sh",
+        "rapport_tests.md"
+      ],
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    },
+    {
+      "id": "6_documentation",
+      "name": "Documentation finale",
+      "description": "README.md (installation, déploiement, tests, dépannage) et consolidation du CAHIER_DES_CHARGES.md.",
+      "status": "pending",
+      "assigned_to": "frontend-dev",
+      "deliverables": [
+        "README.md",
+        "CAHIER_DES_CHARGES.md"
+      ],
+      "started_at": null,
+      "completed_at": null,
+      "notes": ""
+    }
+  ],
+  "proofreader_reviews": [
+    {
+      "phase": "1_developpement_site",
+      "date": "2026-09-10",
+      "verdict": "CONFORME",
+      "anomalies": 8,
+      "notes": "8 accents manquants corrigés (libellés UI et commentaires JS)."
+    }
+  ],
+  "commits": [
+    {
+      "hash": "pending",
+      "message": "Ajoute les sites A et B (HTML5/CSS3/JS vanilla) pour la Phase 1",
+      "date": "2026-09-10"
+    }
+  ]
+}
