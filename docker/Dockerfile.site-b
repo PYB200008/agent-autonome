@@ -1,7 +1,7 @@
 # =============================================================================
 # Dockerfile — Site B
 # Lightweight nginx:alpine image serving the static Site B.
-# Target size: < 50 MB.  Runs as non-root user after startup.
+# Target size: < 50 MB.  Runs as non-root user (appuser, UID 1001).
 # =============================================================================
 
 FROM nginx:alpine
@@ -32,6 +32,8 @@ RUN printf '#!/bin/sh\nset -euo pipefail\nsed -i "s/{{HOSTNAME}}/${HOSTNAME}/g" 
 # --- Ensure correct ownership of static files ------------------------------- #
 RUN chown -R appuser:appuser /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 8080
+
+USER appuser
 
 ENTRYPOINT ["/entrypoint.sh"]

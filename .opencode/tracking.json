@@ -5,7 +5,7 @@
   "updated_at": "2026-09-10",
   "author": "yugmerabtene",
   "status": "in_progress",
-  "current_phase": "2_dockerisation",
+  "current_phase": "3_manifestes_k8s",
   "phases": [
     {
       "id": "1_developpement_site",
@@ -29,16 +29,16 @@
       "id": "2_dockerisation",
       "name": "Dockerisation des deux sites",
       "description": "Dockerfile.site-a et Dockerfile.site-b basés sur nginx:alpine, nginx.conf commun, images < 50 Mo.",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "devops-tester",
       "deliverables": [
         "docker/Dockerfile.site-a",
         "docker/Dockerfile.site-b",
         "docker/nginx.conf"
       ],
-      "started_at": null,
-      "completed_at": null,
-      "notes": ""
+      "started_at": "2026-09-10",
+      "completed_at": "2026-09-10",
+      "notes": "3 fichiers créés, relecture proofreader CONFORME après correction (USER appuser + port 8080)."
     },
     {
       "id": "3_manifestes_k8s",
@@ -106,12 +106,24 @@
       "verdict": "CONFORME",
       "anomalies": 8,
       "notes": "8 accents manquants corrigés (libellés UI et commentaires JS)."
+    },
+    {
+      "phase": "2_dockerisation",
+      "date": "2026-09-10",
+      "verdict": "CONFORME_après_correction",
+      "anomalies": 1,
+      "notes": "Directive USER appuser manquante + port 80->8080 pour non-root. Corrigé."
     }
   ],
   "commits": [
     {
       "hash": "pending",
       "message": "Ajoute les sites A et B (HTML5/CSS3/JS vanilla) pour la Phase 1",
+      "date": "2026-09-10"
+    },
+    {
+      "hash": "pending",
+      "message": "Ajoute les Dockerfiles et nginx.conf pour la Phase 2",
       "date": "2026-09-10"
     }
   ]
