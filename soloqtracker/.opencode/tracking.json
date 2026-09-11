@@ -4,7 +4,7 @@
   "phases": {
     "phase_1_v1_minimaliste": {
       "description": "Watcher + Match Fetcher + Discord Bot fusionnés, 1 compte, résumé post-game",
-      "status": "in_progress",
+      "status": "completed",
       "tasks": [
         {
           "id": "T01",
@@ -14,53 +14,59 @@
         {
           "id": "T02",
           "description": "core/riot_api.py — Wrapper API Riot (rate limit, retry, endpoints)",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "T03",
           "description": "core/models.py — Structures de données (Game, Player, Stats)",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "T04",
           "description": "core/db.py — Accès SQLite",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "T05",
           "description": "agents/watcher.py — Détection de partie (Spectator-V5)",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "T06",
           "description": "agents/match_fetcher.py — Stats post-game (Match-V5)",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "T07",
           "description": "agents/discord_bot.py — Bot Discord (embeds composition + résultat)",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "T08",
           "description": "config.py + main.py — Orchestrateur",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "T09",
-          "description": "Tests et validation (code-tester)",
-          "status": "pending"
+          "description": "Tests et validation (code-tester) — 38 tests mockés passés",
+          "status": "completed"
         },
         {
           "id": "T10",
           "description": "Relecture finale (proofreader) + commit/push",
-          "status": "pending"
+          "status": "completed"
         }
       ]
     },
     "phase_2_live_tracking": {
       "description": "Collector (Live Client Data API) + updates en temps réel + multi-comptes",
-      "status": "pending"
+      "status": "pending",
+      "improvements": [
+        "Mapping championId -> nom du champion en Phase 1 (Data Dragon)",
+        "Affichage des items finaux dans l'embed Phase 2",
+        "Gérer la race au démarrage (game détectée avant on_ready du bot)",
+        "Nettoyer CHAMPION_TO_ROLE (doublons de clés, erreur 1 = Anivia)"
+      ]
     }
   }
 }
