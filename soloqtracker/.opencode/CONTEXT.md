@@ -30,7 +30,7 @@ soloqtracker/
 ## Endpoints Riot API
 | Endpoint | Route | Usage |
 |---|---|---|
-| Account-V1 | GET /riot/account/v1/accounts/by-riot-id/{tagline}/{game} | Riot ID → PUUID |
+| Account-V1 | GET /riot/account/v1/accounts/by-riot-id/{tagline}/{game} | Riot ID → PUUID (routage régional Europe, PAS euw1) |
 | Spectator-V5 | GET /lol/spectator/v5/active-games/by-summoner/{summonerId} | Game en cours |
 | Match-V5 | GET /lol/match/v5/matches/{matchId} | Stats détaillées post-game |
 | Match-V5 | GET /lol/match/v5/matches/by-puuid/{puuid}/ids | Historique de matchs |
@@ -47,8 +47,8 @@ soloqtracker/
 - Backoff exponentiel sur 429
 
 ## Base URL par région
-- EUW1: `https://euw1.api.riotgames.com`
-- Route matchs (Match-V5): `https://europe.api.riotgames.com`
+- EUW1: `https://euw1.api.riotgames.com` (région locale : Summoner-V4, Spectator-V5, League-V4)
+- Routes Match-V5 et Account-V1: `https://europe.api.riotgames.com`
 
 ## Formats de données partagés
 Les agents communiquent via des dataclasses Python standardisées. Voir `core/models.py` pour les schémas.
