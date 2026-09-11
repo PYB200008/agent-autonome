@@ -84,11 +84,11 @@ Le volume d'appels API et la nature temps réel justifient une séparation en **
 ## 5. Stack technique proposée
 
 - **Langage** : Python 3.11+
-- **Bot Discord** : `discord.py` (ou `py-cord`)
-- **HTTP client** : `httpx` ou `requests` + gestion retry (`tenacity`)
+- **Discord** : appels HTTP vers un webhook (pas de bot, pas de discord.py)
+- **HTTP client** : `httpx` + gestion retry (`tenacity`)
 - **Stockage d'état** : SQLite (via `sqlite3` ou `sqlmodel`) — suffisant pour ce volume
-- **Scheduler** : `asyncio` (boucles async) ou `APScheduler` pour les polls périodiques
-- **Config** : fichier `.env` (clé API Riot, token bot Discord, liste comptes suivis, ID du channel)
+- **Scheduler** : `asyncio` (boucles async) pour les polls périodiques
+- **Config** : fichier `.env` (clé API Riot, URL webhook Discord, liste comptes suivis)
 
 ---
 

@@ -1,6 +1,6 @@
-"""Point d'entrée du tracker LoL temps réel.
+"""Point d'entr\u00e9e du tracker LoL temps r\u00e9el.
 
-Orchestre les agents : Watcher, MatchFetcher et DiscordBot.
+Orchestre les agents : Watcher et MatchFetcher, avec envoi via webhook Discord.
 
 Usage::
 
@@ -15,7 +15,7 @@ import signal
 import sys
 
 from config import ConfigError, load_config
-from agents.discord_bot import DiscordBot
+from core.discord_webhook import DiscordWebhook
 from agents.match_fetcher import MatchFetcher
 from agents.watcher import Watcher
 from core.db import init_db
@@ -28,13 +28,13 @@ def _setup_logging() -> None:
     """Configure le logging global (format timestamp, niveau INFO)."""
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s │ %(levelname)-7s │ %(name)s │ %(message)s",
+        format="%(asctime)s \u2502 %(levelname)-7s \u2502 %(name)s \u2502 %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
 
 async def main() -> None:
-    """Point d'entrée principal : initialise et lance tous les agents."""
+    """Point d'entr\u00e9e principal : initialise et lance tous les agents."""
     _setup_logging()
 
     try:
@@ -44,26 +44,26 @@ async def main() -> None:
         sys.exit(1)
 
     logger.info(
-        "Tracker LoL démarré — %d compte(s) suivi(s)",
+        "Tracker LoL d\u00e9marr\u00e9 \u2014 %d compte(s) suivi(s)",
         len(config.tracked_puuids),
     )
     logger.info(
-        "Region : %s | Channel Discord : %s | Poll : %ds",
+        "Region : %s | Poll : %ds",
         config.riot_region,
-        config.discord_channel_id,
         config.watcher_interval,
     )
 
-    # 1. Base de données
+    # 1. Base de donn\u00e9es
     conn = init_db(config.db_path)
     logger.info("Base SQLite ouverte : %s", config.db_path)
 
     # 2. Client API Riot
     riot = RiotAPI(config.riot_api_key, config.riot_region)
-    logger.info("Client Riot API initialisé (region=%s)", config.riot_region)
+    logger.info("Client Riot API initialis\u00e9 (region=%s)", config.riot_region)
 
-    # 3. Bot Discord
-    bot = DiscordBot(config.discord_token, config.discord_channel_id)
+    # 3. Webhook Discord
+    webhook = DiscordWebhook(config.discord_webhook_url)
+    logger.info("Webhook Discord initialis\u00e9")
 
     # 4. Agents avec callbacks
     watcher = Watcher(
@@ -71,27 +71,25 @@ async def main() -> None:
         conn,
         config.tracked_puuids,
         config.watcher_interval,
-        callback=bot.send_game_composition,
+        callback=webhook.send_game_composition,
     )
     fetcher = MatchFetcher(
         riot,
         conn,
-        callback=bot.send_game_result,
+        callback=webhook.send_game_result,
     )
 
-    # 5. Lancer tout en parallèle
-    bot_task = await bot.start_as_task()
+    # 5. Lancer tout en parall\u00e8le
     tasks = [
-        bot_task,
         asyncio.create_task(watcher.start(), name="watcher"),
         asyncio.create_task(fetcher.start(), name="fetcher"),
     ]
 
-    # 6. Gestion de l'arrêt propre (Ctrl+C)
+    # 6. Gestion de l'arr\u00eat propre (Ctrl+C)
     stop_event = asyncio.Event()
 
     def _signal_handler() -> None:
-        logger.info("Signal d'arrêt reçu — arrêt en cours…")
+        logger.info("Signal d'arr\u00eat re\u00e7u \u2014 arr\u00eat en cours\u2026")
         stop_event.set()
 
     loop = asyncio.get_running_loop()
@@ -99,35 +97,30 @@ async def main() -> None:
         for sig in (signal.SIGINT, signal.SIGTERM):
             loop.add_signal_handler(sig, _signal_handler)
     else:
-        # Sur Windows, add_signal_handler n'est pas supporté — on se repose
-        # sur KeyboardInterrupt lancé par le runtime asyncio.
         pass
 
     try:
-        # Attendre soit le signal d'arrêt, soit la fin d'une tâche (erreur)
         done, pending = await asyncio.wait(
             tasks,
             return_when=asyncio.FIRST_COMPLETED,
         )
-        # Logger les tâches terminées
         for task in done:
             try:
                 task.result()
             except asyncio.CancelledError:
-                logger.info("Tâche %s annulée.", task.get_name())
+                logger.info("T\u00e2che %s annul\u00e9e.", task.get_name())
             except Exception:
                 logger.exception(
-                    "Tâche %s terminée avec erreur.", task.get_name()
+                    "T\u00e2che %s termin\u00e9e avec erreur.", task.get_name()
                 )
     finally:
-        # Arrêt propre de tous les agents
-        logger.info("Arrêt des agents…")
+        logger.info("Arr\u00eat des agents\u2026")
         await watcher.stop()
         await fetcher.stop()
-        await bot.stop()
+        await webhook.close()
         await riot.close()
         conn.close()
-        logger.info("Tracker LoL arrêté.")
+        logger.info("Tracker LoL arr\u00eat\u00e9.")
 
 
 if __name__ == "__main__":

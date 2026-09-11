@@ -9,8 +9,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from agents.discord_bot import (
-    DiscordBot,
+from core.discord_webhook import (
+    DiscordWebhook,
     _format_duration,
     _fmt,
     _kda,
@@ -176,16 +176,6 @@ def make_full_game() -> Game:
         teams=[t1, t2],
         tracked_player_puuid=TRACKED_PUUID,
     )
-
-
-class FakeChannel:
-    """Canal Discord factice qui capture les embeds envoyés."""
-
-    def __init__(self):
-        self.sent = []
-
-    async def send(self, **kwargs):
-        self.sent.append(kwargs)
 
 
 class FakeRiotClient:
@@ -665,7 +655,7 @@ class TestMatchFetcher:
 
 
 # ---------------------------------------------------------------------------
-# 6. agents/discord_bot.py — formatage & embeds (sans connexion)
+# 6. core/discord_webhook.py — formatage & envoy d'embeds (sans connexion)
 # ---------------------------------------------------------------------------
 
 class TestDiscordFormatting:
@@ -714,41 +704,102 @@ class TestDiscordFormatting:
 
 
 class TestDiscordEmbeds:
-    def _make_bot(self, monkeypatch):
-        bot = DiscordBot("dummy-token", 987654321)
-        channel = FakeChannel()
-        monkeypatch.setattr(bot, "_get_channel", lambda: channel)
-        return bot, channel
+    def _make_webhook(self, monkeypatch):
+        webhook = DiscordWebhook("https://discord.com/api/webhooks/test/test")
+        captured = []
+
+        class _FakeResponse:
+            status_code = 200
+            headers = {}
+            text = ""
+
+        async def fake_post(url, json=None):
+            captured.append(json)
+            return _FakeResponse
+
+        monkeypatch.setattr(webhook._client, "post", fake_post)
+        return webhook, captured
+
+    def _close(self, webhook):
+        asyncio.run(webhook.close())
 
     def test_send_game_composition(self, monkeypatch):
         game = parse_game_from_spectator(make_spectator_payload(), TRACKED_PUUID)
-        bot, channel = self._make_bot(monkeypatch)
-        asyncio.run(bot.send_game_composition(game))
-        assert len(channel.sent) == 1
-        embed = channel.sent[0]["embed"]
-        assert "Game en cours" in embed.title
-        assert "Player0" in embed.description
-        assert "Equipe Bleue" in embed.description or "Bleue" in embed.description
-        assert "Tracker LoL" in embed.footer.text
+        webhook, captured = self._make_webhook(monkeypatch)
+        asyncio.run(webhook.send_game_composition(game))
+        self._close(webhook)
+        assert len(captured) == 1
+        embed = captured[0]["embeds"][0]
+        assert "Game en cours" in embed["title"]
+        assert "Player0" in embed["description"]
+        assert "Bleue" in embed["description"] or "Equipe" in embed["description"]
+        assert "Tracker LoL" in embed["footer"]["text"]
 
     def test_send_game_result(self, monkeypatch):
         game = make_full_game()
-        bot, channel = self._make_bot(monkeypatch)
-        asyncio.run(bot.send_game_result(game))
-        assert len(channel.sent) == 1
-        embed = channel.sent[0]["embed"]
-        assert "Resultat" in embed.title or "Résultat" in embed.title
-        assert "10/2/15" in embed.description
-        assert "Dragons 4" in embed.description
-        assert "Kills 30" in embed.description
-        assert "Tracker LoL" in embed.footer.text
+        webhook, captured = self._make_webhook(monkeypatch)
+        asyncio.run(webhook.send_game_result(game))
+        self._close(webhook)
+        assert len(captured) == 1
+        embed = captured[0]["embeds"][0]
+        assert "Résultat" in embed["title"]
+        assert "10/2/15" in embed["description"]
+        assert "Dragons 4" in embed["description"]
+        assert "Kills 30" in embed["description"]
+        assert "Tracker LoL" in embed["footer"]["text"]
 
-    def test_no_channel_returns_quietly(self):
-        bot = DiscordBot("dummy-token", 987654321)
-        bot._get_channel = lambda: None
+    def test_no_champion_name_uses_id(self, monkeypatch):
+        payload = make_spectator_payload()
+        for p in payload["participants"]:
+            p["championName"] = ""
+        game = parse_game_from_spectator(payload, TRACKED_PUUID)
+        webhook, captured = self._make_webhook(monkeypatch)
+        asyncio.run(webhook.send_game_composition(game))
+        self._close(webhook)
+        embed = captured[0]["embeds"][0]
+        assert "Champion" in embed["description"]
+
+    def test_rate_limit_429_retries(self, monkeypatch):
+        webhook = DiscordWebhook("https://discord.com/api/webhooks/test/test")
+        calls = {"n": 0}
+
+        class _Fake429:
+            status_code = 429
+            headers = {"Retry-After": "0"}
+            text = ""
+
+        class _FakeOK:
+            status_code = 200
+            headers = {}
+            text = ""
+
+        async def fake_post(url, json=None):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return _Fake429
+            return _FakeOK
+
+        monkeypatch.setattr(webhook._client, "post", fake_post)
         game = make_full_game()
-        assert asyncio.run(bot.send_game_composition(game)) is None
-        assert asyncio.run(bot.send_game_result(game)) is None
+        asyncio.run(webhook.send_game_result(game))
+        self._close(webhook)
+        assert calls["n"] == 2
+
+    def test_http_error_silently_ignored(self, monkeypatch):
+        webhook = DiscordWebhook("https://discord.com/api/webhooks/test/test")
+
+        class _Fake500:
+            status_code = 500
+            headers = {}
+            text = "oups"
+
+        async def fake_post(url, json=None):
+            return _Fake500
+
+        monkeypatch.setattr(webhook._client, "post", fake_post)
+        game = make_full_game()
+        assert asyncio.run(webhook.send_game_result(game)) is None
+        self._close(webhook)
 
 
 # ---------------------------------------------------------------------------
@@ -764,22 +815,21 @@ class TestImports:
 
     def test_config_load_ok(self, monkeypatch):
         monkeypatch.setenv("RIOT_API_KEY", "dummy-key")
-        monkeypatch.setenv("DISCORD_TOKEN", "dummy-token")
-        monkeypatch.setenv("DISCORD_CHANNEL_ID", "12345")
+        monkeypatch.setenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/test/test")
         monkeypatch.setenv("TRACKED_PUUIDS", "puuid-a, puuid-b, ")
         monkeypatch.setenv("WATCHER_INTERVAL", "42")
         import config
         cfg = config.load_config()
         assert cfg.riot_api_key == "dummy-key"
-        assert cfg.discord_channel_id == 12345
+        assert cfg.discord_webhook_url == "https://discord.com/api/webhooks/test/test"
         assert cfg.tracked_puuids == ["puuid-a", "puuid-b"]
         assert cfg.watcher_interval == 42
 
     def test_config_missing_env_raises(self, monkeypatch):
         import config
+        monkeypatch.setattr(config, "load_dotenv", lambda: None)
         monkeypatch.delenv("RIOT_API_KEY", raising=False)
-        monkeypatch.delenv("DISCORD_TOKEN", raising=False)
-        monkeypatch.delenv("DISCORD_CHANNEL_ID", raising=False)
+        monkeypatch.delenv("DISCORD_WEBHOOK_URL", raising=False)
         with pytest.raises(config.ConfigError):
             config.load_config()
 
