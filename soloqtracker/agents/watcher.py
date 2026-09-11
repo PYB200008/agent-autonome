@@ -18,7 +18,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
-from core.db import get_active_games, init_db, save_game
+from core.db import get_active_games, save_game
 from core.models import Game, Player, parse_game_from_spectator
 from core.riot_api import RiotAPI, RiotAPIError
 
@@ -83,7 +83,6 @@ class Watcher:
             len(self.tracked_puuids),
             self.poll_interval,
         )
-        init_db(self._db_conn)
 
         while not self._stop_event.is_set():
             await self._poll_once()

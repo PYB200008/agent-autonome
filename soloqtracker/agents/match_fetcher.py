@@ -76,7 +76,6 @@ class MatchFetcher:
         if self._task is not None and not self._task.done():
             logger.warning("MatchFetcher déjà en cours d'exécution.")
             return
-        await self._db_run(init_db)
         self._task = asyncio.create_task(self._run_loop())
         logger.info(
             "MatchFetcher démarré (poll toutes les %ss).", self._poll_interval
@@ -203,13 +202,10 @@ class MatchFetcher:
 
         creation_ms = info.get("gameCreation")
         if creation_ms is not None:
-            creation = datetime.fromtimestamp(
-                creation_ms / 1000.0, tz=timezone.utc
-            )
             created_at = game.created_at
             if created_at.tzinfo is None:
                 created_at = created_at.replace(tzinfo=timezone.utc)
-            delta = abs((creation - created_at).total_seconds())
+            delta = abs(creation_ms / 1000.0 - created_at.timestamp())
             if delta > GAME_START_TOLERANCE_SECONDS:
                 logger.debug(
                     "Game %s : début du match incohérent (%ss d'écart), "
@@ -250,8 +246,7 @@ class MatchFetcher:
     # ------------------------------------------------------------------
     # Accès à la couche DB (sync ou async indifféremment)
     # ------------------------------------------------------------------
-    @staticmethod
-    async def _db_run(func, *args):
+    async def _db_run(self, func, *args):
         """Exécute un helper de ``core.db``, synchrone ou asynchrone.
 
         La couche ``core.db`` n'étant pas encore stabilisée, on s'adapte aux
@@ -259,8 +254,8 @@ class MatchFetcher:
         la fonction est synchrone).
         """
         if inspect.iscoroutinefunction(func):
-            return await func(*args)
-        return await asyncio.to_thread(func, *args)
+            return await func(self._db_conn, *args)
+        return await asyncio.to_thread(func, self._db_conn, *args)
 
 
 __all__ = ["MatchFetcher"]

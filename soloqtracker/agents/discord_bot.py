@@ -158,7 +158,7 @@ class DiscordBot:
         self.channel_id = channel_id
 
         intents = discord.Intents.default()
-        self.bot = commands.Bot(intents=intents)
+        self.bot = commands.Bot(command_prefix="!", intents=intents)
 
         self._setup_events()
 
