@@ -32,6 +32,8 @@ BASE_URLS = {
 
 # La route Match-V5 est servie par la plateforme régionale de match (Europe)
 MATCH_ROUTING_REGION = "europe"
+# Account-V1 est servie par la plateforme régionale de compte (Europe pour EUW)
+ACCOUNT_ROUTING_REGION = "europe"
 
 # Rate limits de la clé de développement
 MAX_REQ_PER_SECOND = 20
@@ -79,6 +81,7 @@ class RiotAPI:
         self._region = region
         self._base_url = BASE_URLS[region]
         self._match_base_url = BASE_URLS[MATCH_ROUTING_REGION]
+        self._account_base_url = BASE_URLS[ACCOUNT_ROUTING_REGION]
         self._client = httpx.AsyncClient(
             headers={"X-Riot-Token": api_key},
             timeout=DEFAULT_TIMEOUT,
@@ -166,7 +169,8 @@ class RiotAPI:
         name = quote(game_name)
         tag = quote(tag_line)
         url = (
-            f"{self._base_url}/riot/account/v1/accounts/by-riot-id/{name}/{tag}"
+            f"{self._account_base_url}/riot/account/v1/accounts/by-riot-id/"
+            f"{name}/{tag}"
         )
         return await self._request("GET", url)
 
