@@ -1,0 +1,66 @@
+{
+  "project": "soloqtracker",
+  "version": "0.1.0",
+  "phases": {
+    "phase_1_v1_minimaliste": {
+      "description": "Watcher + Match Fetcher + Discord Bot fusionnés, 1 compte, résumé post-game",
+      "status": "in_progress",
+      "tasks": [
+        {
+          "id": "T01",
+          "description": "Structure de projet + .env + .gitignore + requirements.txt",
+          "status": "completed"
+        },
+        {
+          "id": "T02",
+          "description": "core/riot_api.py — Wrapper API Riot (rate limit, retry, endpoints)",
+          "status": "pending"
+        },
+        {
+          "id": "T03",
+          "description": "core/models.py — Structures de données (Game, Player, Stats)",
+          "status": "pending"
+        },
+        {
+          "id": "T04",
+          "description": "core/db.py — Accès SQLite",
+          "status": "pending"
+        },
+        {
+          "id": "T05",
+          "description": "agents/watcher.py — Détection de partie (Spectator-V5)",
+          "status": "pending"
+        },
+        {
+          "id": "T06",
+          "description": "agents/match_fetcher.py — Stats post-game (Match-V5)",
+          "status": "pending"
+        },
+        {
+          "id": "T07",
+          "description": "agents/discord_bot.py — Bot Discord (embeds composition + résultat)",
+          "status": "pending"
+        },
+        {
+          "id": "T08",
+          "description": "config.py + main.py — Orchestrateur",
+          "status": "pending"
+        },
+        {
+          "id": "T09",
+          "description": "Tests et validation (code-tester)",
+          "status": "pending"
+        },
+        {
+          "id": "T10",
+          "description": "Relecture finale (proofreader) + commit/push",
+          "status": "pending"
+        }
+      ]
+    },
+    "phase_2_live_tracking": {
+      "description": "Collector (Live Client Data API) + updates en temps réel + multi-comptes",
+      "status": "pending"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+cahier des charges :
+objectifs :
+Developper un agent autonome ; capable de developper des petits programme et pouvoir les deployer sur son propre github.
+
+spécification technique :
+l'agent sera entierement developpé en python et sera deployer sous linux
+l'agent utilisera l'api groq et infisicale pour la gestion des secrets
+l'agent gerera la rotation des clés api groq pour éviter de se retrouver snas token. 3 comptes différents avec 3 clé api différentes
+l'agent peur récupérer l'acces admin de la machine via infisicale aussi.

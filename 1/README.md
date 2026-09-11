@@ -35,31 +35,31 @@ le failover et la récupération automatique des pods.
 
 ### Composants
 
-| Composant | Role |
+| Composant | Rôle |
 |-----------|------|
-| **Site A** | Site statique a theme bleu (`#2196F3`), affichant « SITE A » avec hostname dynamique et horodatage |
-| **Site B** | Site statique a theme vert (`#4CAF50`), affichant « SITE B » avec hostname dynamique et horodatage |
+| **Site A** | Site statique à thème bleu (`#2196F3`), affichant « SITE A » avec hostname dynamique et horodatage |
+| **Site B** | Site statique à thème vert (`#4CAF50`), affichant « SITE B » avec hostname dynamique et horodatage |
 | **LoadBalancer** | Service Kubernetes de type `LoadBalancer` avec `sessionAffinity: None` pour le round robin |
-| **ConfigMap** | Configuration Nginx partagee montee en volume dans chaque pod |
+| **ConfigMap** | Configuration Nginx partagée montée en volume dans chaque pod |
 | **Deployments** | Deux Deployments (un par site) avec 2 replicas chacun, liveness et readiness probes |
 
 ---
 
-## Pre requis
+## Prérequis
 
 | Composant | Version minimale | Usage |
 |-----------|------------------|-------|
 | Docker | 20.10+ | Construction des images |
 | kubectl | 1.25+ | Interaction avec le cluster Kubernetes |
 | Cluster Kubernetes | 1.25+ | Minikube, K3s ou Kind |
-| curl | 7.0+ | Requetes HTTP pour les tests |
-| Bash | 4.0+ | Execution des scripts |
+| curl | 7.0+ | Requêtes HTTP pour les tests |
+| Bash | 4.0+ | Exécution des scripts |
 
 ---
 
 ## Installation rapide
 
-### 1. Cloner le depot
+### 1. Cloner le dépôt
 
 ```bash
 git clone https://github.com/yugmerabtene/site-web-statique-k8s.git
@@ -72,10 +72,10 @@ cd site-web-statique-k8s
 ./scripts/build.sh
 ```
 
-Ce script construit les images `site-a:1.0` et `site-b:1.0` a partir des Dockerfiles
-dans `docker/`. Il verifie automatiquement que chaque image fait moins de 50 Mo.
+Ce script construit les images `site-a:1.0` et `site-b:1.0` à partir des Dockerfiles
+dans `docker/`. Il vérifie automatiquement que chaque image fait moins de 50 Mo.
 
-### 3. Deployer sur Kubernetes
+### 3. Déployer sur Kubernetes
 
 ```bash
 ./scripts/deploy.sh
@@ -84,7 +84,7 @@ dans `docker/`. Il verifie automatiquement que chaque image fait moins de 50 Mo.
 Ce script applique les manifestes Kubernetes dans l'ordre (ConfigMap, Deployments,
 Service LoadBalancer), attend la convergence des pods, et affiche l'adresse du
 LoadBalancer. En environnement local sans IP externe, il fournit les commandes
-d'acces en port-forward.
+d'accès en port-forward.
 
 ### 4. Tester le round robin et le failover
 
@@ -92,17 +92,17 @@ d'acces en port-forward.
 ./scripts/test-loadbalancer.sh
 ```
 
-Ce script execute trois tests :
-- **Test 1 (Round Robin)** : envoie 10 requetes et verifie que au moins 2 hostnames
+Ce script exécute trois tests :
+- **Test 1 (Round Robin)** : envoie 10 requêtes et vérifie que au moins 2 hostnames
   distincts apparaissent.
-- **Test 2 (Failover)** : supprime un pod et verifie que le service continue de
+- **Test 2 (Failover)** : supprime un pod et vérifie que le service continue de
   fonctionner.
-- **Test 3 (Recuperation)** : verifie que le ReplicaSet recree un nouveau pod en
+- **Test 3 (Récupération)** : vérifie que le ReplicaSet recrée un nouveau pod en
   moins de 60 secondes.
 
-### Acces en environnement local
+### Accès en environnement local
 
-Si aucune IP externe n'est assignee au LoadBalancer (cas de Minikube, K3s ou Kind) :
+Si aucune IP externe n'est assignée au LoadBalancer (cas de Minikube, K3s ou Kind) :
 
 ```bash
 # Option 1 : port-forward
@@ -122,7 +122,7 @@ minikube service site-loadbalancer -n default --url
 ├── docker/                           Configuration Docker et Nginx
 │   ├── Dockerfile.site-a             Dockerfile du Site A (nginx:alpine)
 │   ├── Dockerfile.site-b             Dockerfile du Site B (nginx:alpine)
-│   └── nginx.conf                    Configuration Nginx partagee
+│   └── nginx.conf                    Configuration Nginx partagée
 ├── site-a/                           Fichiers du Site A
 │   ├── index.html                    Page principale (HTML5)
 │   ├── style.css                     Styles (CSS3 responsive)
@@ -138,8 +138,8 @@ minikube service site-loadbalancer -n default --url
 │   └── configmap.yaml                ConfigMap Nginx
 ├── scripts/                          Scripts Bash
 │   ├── build.sh                      Construction des images Docker
-│   ├── deploy.sh                     Deploiement sur Kubernetes
-│   └── test-loadbalancer.sh          Tests round robin, failover, recuperation
+│   ├── deploy.sh                     Déploiement sur Kubernetes
+│   └── test-loadbalancer.sh          Tests round robin, failover, récupération
 ├── CAHIER_DES_CHARGES.md             Cahier des charges du projet
 ├── rapport_tests.md                  Rapport de tests
 ├── README.md                         Ce fichier
@@ -160,7 +160,7 @@ minikube service site-loadbalancer -n default --url
 
 ### Namespace et labels
 
-| Element | Valeur |
+| Élément | Valeur |
 |---------|--------|
 | Namespace | `default` |
 | Label app (Site A) | `app: site-a` |
@@ -180,24 +180,24 @@ minikube service site-loadbalancer -n default --url
 | Ressource | Limite |
 |-----------|--------|
 | CPU | 100m par conteneur |
-| Memoire | 64Mi par conteneur |
+| Mémoire | 64Mi par conteneur |
 
 ### Probes
 
-| Probe | Type | Chemin | Port | Periode | Seuil d'echec |
+| Probe | Type | Chemin | Port | Période | Seuil d'échec |
 |-------|------|--------|------|---------|----------------|
 | Liveness | HTTP GET | `/` | 8080 | 10 s | 3 |
 | Readiness | HTTP GET | `/` | 8080 | 5 s | 3 |
 
 ---
 
-## Depannnage
+## Dépannage
 
-### Images Docker non trouvees
+### Images Docker non trouvées
 
 **Symptome** : le script `deploy.sh` affiche `ERREUR: L'image 'site-a:1.0' n'existe pas localement`.
 
-**Solution** : executer d'abord la construction des images :
+**Solution** : exécuter d'abord la construction des images :
 
 ```bash
 ./scripts/build.sh
