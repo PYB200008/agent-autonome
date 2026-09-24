@@ -11,10 +11,20 @@ memoire:
   # contexte envoyé au LLM.
   court_terme_max_messages: 30
 
-# Appel au LLM (lot 1)
+# Appel au LLM (lot 1) — fournisseur Groq (décision utilisateur).
+# Tous les paramètres ci-dessous se modifient dans ce fichier, sans toucher
+# au code (exigence R8).
 llm:
-  # Modèle rapide pour les réponses de conversation.
-  model: claude-haiku-4-5
+  # Fournisseur utilisé par le bot. Informatif pour l'avenir : seul groq est
+  # implémenté (API OpenAI-compatible).
+  provider: groq
+  # Point d'accès de l'API Groq, format OpenAI-compatible.
+  base_url: https://api.groq.com/openai/v1
+  # Modèle de conversation. Défaut : openai/gpt-oss-120b, modèle de production
+  # stable et rapide sur Groq (llama-3.3-70b-versatile est passé en offre
+  # Enterprise, hors clé self-serve, en août 2026). Liste des modèles actifs :
+  # https://console.groq.com/docs/models
+  model: openai/gpt-oss-120b
   # Nombre maximal de tokens générés par réponse.
   max_tokens: 600
 

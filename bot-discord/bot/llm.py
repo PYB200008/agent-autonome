@@ -1,10 +1,15 @@
-"""Client API Anthropic : construction du contexte et génération des réponses.
+"""Client LLM Groq (API OpenAI-compatible) : construction du contexte et génération.
 
 Le prompt système est assemblé depuis deux fichiers fournis par
 persona-designer (S4) :
 - ``persona.md`` : la personnalité (prénom, caractère, façon de parler) ;
 - ``prompts/conversation.md`` : les consignes de conversation (ton oral S5,
   format de sortie).
+
+Note de migration (décision utilisateur) : le client Anthropic a été remplacé
+par un client OpenAI-compatible pointant sur Groq (``api.groq.com/openai/v1``).
+Le point d'accès et le modèle sont lus dans ``config.yaml`` : on les change
+sans toucher au code (exigence R8).
 
 Lot 1 : la réponse est un texte brut. Lot 3 : le prompt conversation.md
 demandera une sortie JSON ``{"reponse": [...], "conversation_finie": bool}``
@@ -18,8 +23,7 @@ import datetime as dt
 import logging
 from pathlib import Path
 
-import anthropic
-from anthropic.types import TextBlock
+import openai
 
 from bot.clock import now
 from bot.config import Settings
@@ -88,9 +92,9 @@ def format_recent_messages(messages: list[MemoryMessage], moment: dt.datetime) -
 
 
 class LLMClient:
-    """Encapsule le client Anthropic, les prompts et l'appel de génération."""
+    """Encapsule le client Groq (API OpenAI-compatible), les prompts et l'appel de génération."""
 
-    def __init__(self, config: Settings, client: anthropic.AsyncAnthropic | None = None) -> None:
+    def __init__(self, config: Settings, client: openai.AsyncOpenAI | None = None) -> None:
         self._config = config
         # Le client HTTP est créé paresseusement pour éviter toute création
         # avant la boucle d'événements ; les tests injectent un faux client.
@@ -98,10 +102,13 @@ class LLMClient:
         self._persona = _read_text_file(config.persona_path, "persona.md")
         self._conversation_prompt = _read_text_file(config.conversation_prompt_path, "prompts/conversation.md")
 
-    def _get_client(self) -> anthropic.AsyncAnthropic:
-        """Renvoie le client Anthropic, en le créant à la première utilisation."""
+    def _get_client(self) -> openai.AsyncOpenAI:
+        """Renvoie le client Groq, en le créant à la première utilisation."""
         if self._injected_client is None:
-            self._injected_client = anthropic.AsyncAnthropic(api_key=self._config.anthropic_api_key)
+            self._injected_client = openai.AsyncOpenAI(
+                api_key=self._config.groq_api_key,
+                base_url=self._config.llm_base_url,
+            )
         return self._injected_client
 
     def system_prompt(self) -> str:
@@ -121,19 +128,19 @@ class LLMClient:
         """
         moment = moment if moment is not None else now()
         try:
-            response = await self._get_client().messages.create(
+            response = await self._get_client().chat.completions.create(
                 model=self._config.llm_model,
                 max_tokens=self._config.llm_max_tokens,
-                system=self.system_prompt(),
                 messages=[
+                    {"role": "system", "content": self.system_prompt()},
                     {
                         "role": "user",
                         "content": format_recent_messages(recent_messages, moment),
-                    }
+                    },
                 ],
             )
-        except anthropic.APIError as exc:
-            logger.error("Erreur API Anthropic : %s", exc)
+        except openai.APIError as exc:
+            logger.error("Erreur API Groq : %s", exc)
             return None
-        # Seuls les blocs texte comptent ; les blocs de raisonnement sont ignorés.
-        return "".join(block.text for block in response.content if isinstance(block, TextBlock)).strip()
+        # La réponse de complétion contient le texte dans choices[0].message.content.
+        return (response.choices[0].message.content or "").strip()

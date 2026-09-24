@@ -5,6 +5,11 @@ Les secrets viennent de l'environnement (.env chargé par python-dotenv dans
 opérationnelle. ``DEFAULT_CONFIG`` ne fournit qu'un secours de fusion pour les
 clés absentes du YAML : pour changer un seuil, modifier ``config.yaml``, jamais
 ce module. Aucune valeur de seuil n'est codée en dur dans les autres modules.
+
+Note de migration (décision utilisateur) : le fournisseur LLM est Groq, la clé
+est lue dans ``GROQ_API_KEY`` (l'ancienne ``ANTHROPIC_API_KEY`` n'est plus
+utilisée). Le point d'accès et le modèle se configurent dans ``config.yaml``
+(section ``llm``), sans toucher au code (exigence R8).
 """
 
 from __future__ import annotations
@@ -22,7 +27,9 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "court_terme_max_messages": 30,
     },
     "llm": {
-        "model": "claude-haiku-4-5",
+        "provider": "groq",
+        "model": "openai/gpt-oss-120b",
+        "base_url": "https://api.groq.com/openai/v1",
         "max_tokens": 600,
     },
     "db": {
@@ -35,7 +42,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 # Variables d'environnement obligatoires (secrets).
-REQUIRED_ENV_VARS: tuple[str, ...] = ("DISCORD_TOKEN", "DISCORD_USER_ID", "ANTHROPIC_API_KEY")
+REQUIRED_ENV_VARS: tuple[str, ...] = ("DISCORD_TOKEN", "DISCORD_USER_ID", "GROQ_API_KEY")
 
 
 class ConfigError(Exception):
@@ -48,9 +55,11 @@ class Settings:
 
     discord_token: str
     discord_user_id: int
-    anthropic_api_key: str
+    groq_api_key: str
     memory_max_messages: int
+    llm_provider: str
     llm_model: str
+    llm_base_url: str
     llm_max_tokens: int
     db_path: Path
     persona_path: Path
@@ -95,7 +104,7 @@ def load_config(config_path: str | Path = "config.yaml", env: dict[str, str] | N
 
     # Secrets : toujours depuis l'environnement, jamais depuis le YAML.
     discord_token = _required_env("DISCORD_TOKEN", environ)
-    anthropic_api_key = _required_env("ANTHROPIC_API_KEY", environ)
+    groq_api_key = _required_env("GROQ_API_KEY", environ)
     try:
         discord_user_id = int(_required_env("DISCORD_USER_ID", environ))
     except ValueError:
@@ -107,9 +116,15 @@ def load_config(config_path: str | Path = "config.yaml", env: dict[str, str] | N
     if memory_max_messages <= 0:
         raise ConfigError("memoire.court_terme_max_messages doit être strictement positif")
 
+    llm_provider = str(merged["llm"]["provider"]).strip()
+    if not llm_provider:
+        raise ConfigError("llm.provider ne peut pas être vide")
     llm_model = str(merged["llm"]["model"]).strip()
     if not llm_model:
         raise ConfigError("llm.model ne peut pas être vide")
+    llm_base_url = str(merged["llm"]["base_url"]).strip()
+    if not llm_base_url:
+        raise ConfigError("llm.base_url ne peut pas être vide")
     llm_max_tokens = int(merged["llm"]["max_tokens"])
     if llm_max_tokens <= 0:
         raise ConfigError("llm.max_tokens doit être strictement positif")
@@ -123,9 +138,11 @@ def load_config(config_path: str | Path = "config.yaml", env: dict[str, str] | N
     return Settings(
         discord_token=discord_token,
         discord_user_id=discord_user_id,
-        anthropic_api_key=anthropic_api_key,
+        groq_api_key=groq_api_key,
         memory_max_messages=memory_max_messages,
+        llm_provider=llm_provider,
         llm_model=llm_model,
+        llm_base_url=llm_base_url,
         llm_max_tokens=llm_max_tokens,
         db_path=resolve_path(merged["db"]["path"]),
         persona_path=resolve_path(merged["prompts"]["persona_path"]),

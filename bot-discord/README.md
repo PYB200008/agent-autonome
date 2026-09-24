@@ -52,7 +52,7 @@ Exigences couvertes au lot 1 :
      mode développeur dans Discord (Paramètres > Avancé > Mode développeur),
      puis clic droit sur le pseudo de l'utilisateur > Copier l'ID de
      l'utilisateur ;
-   - `ANTHROPIC_API_KEY` : clé API Anthropic.
+   - `GROQ_API_KEY` : clé API Groq (gratuite sur <https://console.groq.com/>).
 2. `config.yaml` centralise tous les seuils (mémoire, LLM, chemins) : aucune
    valeur de seuil n'est codée en dur dans le code (exigence R8). Pour changer
    un seuil, modifier ce fichier.

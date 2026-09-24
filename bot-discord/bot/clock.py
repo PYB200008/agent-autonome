@@ -12,7 +12,12 @@ from collections.abc import Callable
 # Type d'une fonction d'horloge : renvoie un datetime local avec fuseau horaire.
 NowFunc = Callable[[], dt.datetime]
 
-_clock: NowFunc = lambda: dt.datetime.now().astimezone()
+def _default_clock() -> dt.datetime:
+    """Horloge réelle par défaut : heure locale courante avec fuseau horaire."""
+    return dt.datetime.now().astimezone()
+
+
+_clock: NowFunc = _default_clock
 
 
 def set_now(func: NowFunc) -> None:

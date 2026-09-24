@@ -1,8 +1,14 @@
 """Objets simulés pour les tests (lot 1).
 
-Aucun objet réel n'est instancié : ni socket discord.py, ni requête HTTP
-Anthropic. Ces fakes pilotent uniquement les branches du code testé, sans
-aucun accès au réseau.
+Aucun objet réel n'est instancié : ni socket discord.py, ni requête HTTP vers
+Groq. Ces fakes pilotent uniquement les branches du code testé, sans aucun
+accès au réseau.
+
+Note de migration (décision utilisateur) : le client simulé reproduit la
+forme ``chat.completions.create`` du SDK OpenAI (API OpenAI-compatible de
+Groq). Le nom de classe historique ``FakeAnthropicClient`` est conservé pour
+ne pas casser les imports existants ; le renommer en ``FakeGroqClient`` fera
+partie de l'adaptation des tests par le tester.
 """
 
 from __future__ import annotations
@@ -11,39 +17,44 @@ from types import SimpleNamespace
 from typing import Any
 
 import discord
-from anthropic.types import TextBlock
 
 
 class FakeAnthropicClient:
-    """Simule anthropic.AsyncAnthropic : réponse en texte, aucun réseau."""
+    """Simule un client OpenAI-compatible (Groq) : réponse en texte, aucun réseau."""
 
     def __init__(self, reply: str = "réponse simulée") -> None:
         self.reply = reply
         self.calls: list[dict[str, Any]] = []
         self.error: BaseException | None = None
-        self.blocks: list[Any] | None = None
-        self._messages = _FakeMessages(self)
+        self._chat = _FakeChat(self)
 
     @property
-    def messages(self) -> _FakeMessages:
-        """Point d'entrée messages simulé de l'API Anthropic."""
-        return self._messages
+    def chat(self) -> _FakeChat:
+        """Point d'entrée chat du client simulé."""
+        return self._chat
 
 
-class _FakeMessages:
-    """Simule le point d'entrée messages du client Anthropic."""
+class _FakeChat:
+    """Simule le sous-client ``chat`` du client OpenAI-compatible."""
+
+    def __init__(self, client: FakeAnthropicClient) -> None:
+        self._client = client
+        self.completions = _FakeCompletions(client)
+
+
+class _FakeCompletions:
+    """Simule ``chat.completions.create`` (format OpenAI-compatible de Groq)."""
 
     def __init__(self, client: FakeAnthropicClient) -> None:
         self._client = client
 
     async def create(self, **kwargs: Any) -> Any:
-        """Enregistre l'appel et renvoie les blocs simulés."""
+        """Enregistre l'appel et renvoie une complétion simulée."""
         if self._client.error is not None:
             raise self._client.error
         self._client.calls.append(dict(kwargs))
-        if self._client.blocks is not None:
-            return SimpleNamespace(content=self._client.blocks)
-        return SimpleNamespace(content=[TextBlock(type="text", text=self._client.reply)])
+        message = SimpleNamespace(content=self._client.reply)
+        return SimpleNamespace(choices=[SimpleNamespace(message=message)])
 
 
 class FakeAuthor:
