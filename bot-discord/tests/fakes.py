@@ -6,9 +6,9 @@ accès au réseau.
 
 Note de migration (décision utilisateur) : le client simulé reproduit la
 forme ``chat.completions.create`` du SDK OpenAI (API OpenAI-compatible de
-Groq). Le nom de classe historique ``FakeAnthropicClient`` est conservé pour
-ne pas casser les imports existants ; le renommer en ``FakeGroqClient`` fera
-partie de l'adaptation des tests par le tester.
+Groq). La classe porte le nom ``FakeGroqClient`` depuis l'adaptation des
+tests à la bascule Anthropic → Groq ; l'ancien nom ``FakeAnthropicClient``
+n'existe plus.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from typing import Any
 import discord
 
 
-class FakeAnthropicClient:
+class FakeGroqClient:
     """Simule un client OpenAI-compatible (Groq) : réponse en texte, aucun réseau."""
 
     def __init__(self, reply: str = "réponse simulée") -> None:
@@ -37,7 +37,7 @@ class FakeAnthropicClient:
 class _FakeChat:
     """Simule le sous-client ``chat`` du client OpenAI-compatible."""
 
-    def __init__(self, client: FakeAnthropicClient) -> None:
+    def __init__(self, client: FakeGroqClient) -> None:
         self._client = client
         self.completions = _FakeCompletions(client)
 
@@ -45,7 +45,7 @@ class _FakeChat:
 class _FakeCompletions:
     """Simule ``chat.completions.create`` (format OpenAI-compatible de Groq)."""
 
-    def __init__(self, client: FakeAnthropicClient) -> None:
+    def __init__(self, client: FakeGroqClient) -> None:
         self._client = client
 
     async def create(self, **kwargs: Any) -> Any:

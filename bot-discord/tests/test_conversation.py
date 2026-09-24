@@ -1,7 +1,9 @@
 """Tests du flux de conversation (bot/conversation.py, M1 et robustesse).
 
-Le LLM est simulé : aucun appel réseau. Le temps est simulé pour vérifier le
-contexte daté transmis au LLM.
+Le LLM est simulé (faux client Groq, API OpenAI-compatible) : aucun appel
+réseau. Le temps est simulé pour vérifier le contexte daté transmis au LLM.
+Depuis la bascule Anthropic → Groq, le contexte utilisateur daté se trouve
+dans ``messages[1]`` (``messages[0]`` étant le prompt système).
 """
 
 from __future__ import annotations
@@ -10,7 +12,7 @@ import datetime as dt
 import logging
 from typing import Any, cast
 
-import anthropic
+import openai
 import pytest  # type: ignore[import-untyped]
 
 from bot.clock import set_now
@@ -19,7 +21,7 @@ from bot.conversation import ConversationHandler
 from bot.db import Database
 from bot.llm import LLMClient
 
-from .fakes import FakeAnthropicClient
+from .fakes import FakeGroqClient
 from .helpers import read_message_rows
 
 USER_ID = 424242424242424242
@@ -46,7 +48,7 @@ async def test_handle_incoming_stores_user_then_bot(
 async def test_handle_incoming_context_limited_to_thirty(
     settings: Settings,
     db: Database,
-    fake_anthropic_client: FakeAnthropicClient,
+    fake_groq_client: FakeGroqClient,
     llm: LLMClient,
 ) -> None:
     """Vérifie M1 : le contexte envoyé au LLM contient les 30 derniers messages, datés, dans l'ordre."""
@@ -57,7 +59,7 @@ async def test_handle_incoming_context_limited_to_thirty(
         db.insert_message(conversation_id, auteur, f"message-{i:02d}")
     handler = ConversationHandler(settings, db, llm)
     await handler.handle_incoming(USER_ID, "dernier message")
-    context = fake_anthropic_client.calls[-1]["messages"][0]["content"]
+    context = fake_groq_client.calls[-1]["messages"][1]["content"]
     assert "message-01" not in context
     assert "message-07" in context
     assert "dernier message" in context
@@ -70,12 +72,12 @@ async def test_handle_incoming_context_limited_to_thirty(
 async def test_handle_incoming_returns_none_on_api_error(
     settings: Settings,
     db: Database,
-    fake_anthropic_client: FakeAnthropicClient,
+    fake_groq_client: FakeGroqClient,
     llm: LLMClient,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Vérifie la robustesse : erreur LLM loguée, aucun message bot inséré, pas de crash."""
-    fake_anthropic_client.error = anthropic.APIError(
+    fake_groq_client.error = openai.APIError(
         "panne simulée", request=cast(Any, object()), body=None
     )
     handler = ConversationHandler(settings, db, llm)
@@ -84,7 +86,7 @@ async def test_handle_incoming_returns_none_on_api_error(
     assert reply is None
     rows = read_message_rows(settings.db_path)
     assert [row[0] for row in rows] == ["utilisateur"]
-    assert "Erreur API Anthropic" in caplog.text
+    assert "Erreur API Groq" in caplog.text
 
 
 @pytest.mark.asyncio

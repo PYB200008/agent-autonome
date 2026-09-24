@@ -41,7 +41,7 @@ def _full_env() -> dict[str, str]:
     return {
         "DISCORD_TOKEN": "jeton-de-test-factice",
         "DISCORD_USER_ID": USER_ID_STR,
-        "ANTHROPIC_API_KEY": "cle-de-test-factice",
+        "GROQ_API_KEY": "cle-de-test-factice",
     }
 
 

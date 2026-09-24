@@ -2,8 +2,9 @@
 
 Docstrings en français, identifiants en anglais. Aucun secret réel : les
 jetons et clés ci-dessous sont des valeurs factices. Aucun appel réseau :
-le client Anthropic est simulé (fakes.py) et le client Discord n'est jamais
-connecté. Les tests des lots suivants se brancheront sur ces mêmes fixtures.
+le client Groq (API OpenAI-compatible) est simulé (fakes.py) et le client
+Discord n'est jamais connecté. Les tests des lots suivants se brancheront
+sur ces mêmes fixtures.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ from bot.config import Settings, load_config
 from bot.db import Database
 from bot.llm import LLMClient
 
-from .fakes import FakeAnthropicClient
+from .fakes import FakeGroqClient
 
 
 @pytest.fixture(autouse=True)
@@ -46,7 +47,7 @@ def settings(tmp_path: Path) -> Settings:
     env = {
         "DISCORD_TOKEN": "jeton-de-test-factice",
         "DISCORD_USER_ID": "424242424242424242",
-        "ANTHROPIC_API_KEY": "cle-de-test-factice",
+        "GROQ_API_KEY": "cle-de-test-factice",
     }
     config_yaml = "\n".join(
         [
@@ -76,12 +77,12 @@ def db(settings: Settings) -> Iterator[Database]:
 
 
 @pytest.fixture
-def fake_anthropic_client() -> FakeAnthropicClient:
-    """Faux client Anthropic : aucune requête réseau pendant les tests."""
-    return FakeAnthropicClient()
+def fake_groq_client() -> FakeGroqClient:
+    """Faux client Groq (API OpenAI-compatible) : aucune requête réseau pendant les tests."""
+    return FakeGroqClient()
 
 
 @pytest.fixture
-def llm(settings: Settings, fake_anthropic_client: FakeAnthropicClient) -> LLMClient:
-    """Client LLM branché sur le faux client HTTP Anthropic (aucun appel réseau)."""
-    return LLMClient(settings, client=cast(Any, fake_anthropic_client))
+def llm(settings: Settings, fake_groq_client: FakeGroqClient) -> LLMClient:
+    """Client LLM branché sur le faux client HTTP Groq (aucun appel réseau)."""
+    return LLMClient(settings, client=cast(Any, fake_groq_client))
