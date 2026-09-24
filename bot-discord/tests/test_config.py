@@ -15,24 +15,29 @@ from bot.config import ConfigError, load_config
 USER_ID_STR = "424242424242424242"
 
 
-def _write_config(tmp_path: Path) -> Path:
-    """Écrit un config.yaml minimal de test pointant vers une base temporaire."""
+def _write_config(tmp_path: Path, rythme_section: str = "") -> Path:
+    """Écrit un config.yaml minimal de test pointant vers une base temporaire.
+
+    ``rythme_section`` permet d'ajouter (ou de surcharger) la section rythme
+    pour tester ses validations ; par défaut la section est absente et les
+    valeurs par défaut s'appliquent (S1-S3, S8).
+    """
     config_file = tmp_path / "config.yaml"
     db_path = tmp_path / "base-de-test.db"
-    config_file.write_text(
-        "\n".join(
-            [
-                "memoire:",
-                "  court_terme_max_messages: 30",
-                "llm:",
-                "  model: modele-de-test",
-                "  max_tokens: 128",
-                "db:",
-                f"  path: '{db_path.as_posix()}'",
-            ]
-        ),
-        encoding="utf-8",
+    content = "\n".join(
+        [
+            "memoire:",
+            "  court_terme_max_messages: 30",
+            "llm:",
+            "  model: modele-de-test",
+            "  max_tokens: 128",
+            "db:",
+            f"  path: '{db_path.as_posix()}'",
+        ]
     )
+    if rythme_section:
+        content += "\n" + rythme_section
+    config_file.write_text(content, encoding="utf-8")
     return config_file
 
 
@@ -70,3 +75,44 @@ def test_load_config_rejects_non_numeric_user_id(tmp_path: Path) -> None:
     env["DISCORD_USER_ID"] = "scotobi"
     with pytest.raises(ConfigError):
         load_config(config_file, env=env)
+
+
+def test_rythme_defaults_loaded_when_section_absent(tmp_path: Path) -> None:
+    """Vérifie S1, S3 et S8 : sans section rythme dans config.yaml, les valeurs
+    par défaut de config.py sont chargées (aucun seuil en dur dans les tests)."""
+    settings = load_config(_write_config(tmp_path), env=_full_env())
+    assert settings.rythme_delai_min_secondes == 3
+    assert settings.rythme_delai_max_secondes == 60
+    assert settings.rythme_poids_longueur == 0.6
+    assert settings.rythme_longueur_reference == 400
+    assert settings.rythme_attente_regroupement_secondes == 3
+    assert settings.rythme_max_messages_reponse == 3
+    assert settings.rythme_max_longueur_message == 300
+    assert settings.rythme_intervalle_segments_secondes == 2
+
+
+def test_rythme_rejects_min_greater_or_equal_max(tmp_path: Path) -> None:
+    """Vérifie la validation de S1 : un délai minimal supérieur ou égal au
+    maximal est refusé."""
+    config_file = _write_config(
+        tmp_path,
+        rythme_section="rythme:\n  delai_min_secondes: 60\n  delai_max_secondes: 60",
+    )
+    with pytest.raises(ConfigError):
+        load_config(config_file, env=_full_env())
+
+
+def test_rythme_rejects_weight_out_of_range(tmp_path: Path) -> None:
+    """Vérifie la validation de S1 : un poids de longueur hors [0, 1] est refusé."""
+    config_file = _write_config(tmp_path, rythme_section="rythme:\n  poids_longueur: 1.5")
+    with pytest.raises(ConfigError):
+        load_config(config_file, env=_full_env())
+
+
+def test_rythme_rejects_negative_burst_wait(tmp_path: Path) -> None:
+    """Vérifie la validation de S8 : une attente de regroupement négative est refusée."""
+    config_file = _write_config(
+        tmp_path, rythme_section="rythme:\n  attente_regroupement_secondes: -1"
+    )
+    with pytest.raises(ConfigError):
+        load_config(config_file, env=_full_env())

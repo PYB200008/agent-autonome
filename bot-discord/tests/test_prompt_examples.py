@@ -1,10 +1,12 @@
-"""Tests du style S5 sur les exemples de conversation et de la consigne anti-divulgation.
+"""Tests du style S5-S7 sur les exemples de conversation et de la consigne anti-divulgation.
 
 Basé sur les fichiers fournis par persona-designer, pas sur le vrai LLM :
 on vérifie que les sorties attendues respectent le ton oral S5 (pas de liste,
-pas de titre, pas de formule d'assistant, pas d'emoji) et que l'exigence
-sécurité anti-divulgation est bien écrite dans prompts/conversation.md puis
-respectée par les exemples d'attaque (4 et 5). Aucun appel réseau.
+pas de titre, pas de formule d'assistant, pas d'emoji), les règles S6 (au plus
+une question par message, pas une question à chaque réponse) et S7 (réponses
+brèves normales), et que l'exigence sécurité anti-divulgation est bien écrite
+dans prompts/conversation.md puis respectée par les exemples d'attaque (4 et
+5). Aucun appel réseau.
 """
 
 from __future__ import annotations
@@ -80,12 +82,13 @@ def _word_ngrams(text: str, size: int = 4) -> list[str]:
 
 
 def test_expected_outputs_are_read() -> None:
-    """Vérifie que le fichier d'exemples est bien lu : les 6 exemples (1 à 6) sont
-    découverts, l'exemple 4 n'est plus sauté, et l'exemple 3 garde sa variante,
-    soit 7 sorties attendues au total."""
+    """Vérifie que le fichier d'exemples est bien lu : les 8 exemples (1 à 8)
+    sont découverts, l'exemple 3 garde sa variante, les exemples 7 (S7) et 8
+    (S6) sont pris en compte — 10 sorties attendues au total (2 pour les
+    exemples 3 et 7, 1 pour chacun des autres)."""
     exemples = _example_outputs()
-    assert set(exemples) == {"1", "2", "3", "4", "5", "6"}
-    assert len(_expected_outputs()) == 7
+    assert set(exemples) == {"1", "2", "3", "4", "5", "6", "7", "8"}
+    assert len(_expected_outputs()) == 10
     assert all(_expected_outputs())
 
 
@@ -109,6 +112,47 @@ def test_no_emoji_in_examples() -> None:
     """Vérifie S5 : les sorties attendues ne contiennent ni emoji ni symbole parasite."""
     for output in _expected_outputs():
         assert _EMOJI_RE.search(output) is None, f"Emoji ou symbole parasite détecté dans : {output}"
+
+
+def test_at_most_one_question_per_output() -> None:
+    """Vérifie S6 : chaque sortie attendue pose au plus une question. Le comptage
+    des « ? » est fiable ici car aucune sortie ne contient de point d'interrogation
+    cité à l'intérieur de guillemets."""
+    for numero, outputs in sorted(_example_outputs().items()):
+        for output in outputs:
+            assert output.count("?") <= 1, (
+                f"Plus d'une question dans l'exemple {numero} : {output}"
+            )
+
+
+def test_some_outputs_have_no_question() -> None:
+    """Vérifie S6 : le bot ne pose pas une question à chaque réponse — l'exemple 7
+    répond sans aucune question, tandis que l'exemple 1 en pose une (le « au plus
+    une » n'est pas un « jamais »)."""
+    assert all("?" not in output for output in _example_outputs()["7"])
+    assert "?" in _example_outputs()["1"][0]
+
+
+def test_brief_outputs_are_short() -> None:
+    """Vérifie S7 : les exemples dédiés aux réponses brèves tiennent en une phrase
+    courte — l'exemple 7 fait au plus 5 mots et une seule ponctuation forte,
+    l'exemple 8 reste bref (au plus 20 mots) et sans question (S6)."""
+    for output in _example_outputs()["7"]:
+        assert len(_normalize_words(output).split()) <= 5
+        assert output.count(".") + output.count("!") <= 1
+    for output in _example_outputs()["8"]:
+        assert len(_normalize_words(output).split()) <= 20
+        assert "?" not in output
+
+
+def test_conversation_prompt_has_s6_and_s7_sections() -> None:
+    """Vérifie S6 et S7 : prompts/conversation.md contient les sections
+    « Questions (S6) » et « Réponses brèves (S7) » avec leurs consignes."""
+    text = CONVERSATION_PATH.read_text(encoding="utf-8")
+    assert "## Questions (S6)" in text
+    assert "Au plus une question par message" in text
+    assert "## Réponses brèves (S7)" in text
+    assert "répondre très brièvement est normal" in text
 
 
 def test_emoji_detection_works() -> None:
