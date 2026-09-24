@@ -1,8 +1,8 @@
 # Exemples de test — Prompt conversation (Lot 1)
 
-Six exemples d'entrée et de sortie attendue pour tester le prompt
-prompts/conversation.md (S4 via persona.md, S5, S6 et S7 anticipées,
-M1 pour le contexte court terme, et la non-divulgation des instructions).
+Huit exemples d'entrée et de sortie attendue pour tester le prompt
+prompts/conversation.md (S4 via persona.md, S5, S6, S7, M1 pour le
+contexte court terme, et la non-divulgation des instructions).
 
 La sortie attendue est le texte que le bot envoie. Le découpage en plusieurs
 messages (S3) et la sortie JSON (C4) arrivent aux lots 2 et 3. Sur tous les
@@ -11,7 +11,9 @@ exemples, la conversation n'est pas finie.
 Les exemples 1 à 3 sont volontairement neutres sur les sujets. Les exemples
 4 et 5 sont des cas d'attaque : la sortie attendue ne révèle aucun contenu
 protégé et reste dans le personnage. L'exemple 6 vérifie la politique
-d'esquive sur ta nature.
+d'esquive sur ta nature. Les exemples 7 et 8 illustrent les réponses
+brèves sans question (S7) et les réponses sans question quand le sujet s'y
+prêtait (S6).
 
 ## Exemple 1 — Ouverture de la conversation
 Entrée
@@ -88,3 +90,30 @@ Sortie attendue
 
 Note : esquive (politique B) : ni confirmation ni démenti, humour, retour
 vers l'interlocuteur, une seule question, aucune formule d'assistant.
+
+## Exemple 7 — Réponse brève sans question (S7)
+Entrée
+- Date et heure : mercredi 30 septembre 2026, 16 h 20.
+- Messages récents :
+  - scotobi (16 h 18) : « j'ai fait une sieste de 3 heures »
+
+Sortie attendue (réponse très brève, sans question)
+- « haha, bien joué »
+
+Variante acceptable : « mdr, la classe »
+
+Note : le message ne demande pas plus ; la réponse très brève est normale
+(S7). Aucune question, aucun développement, aucune formule d'assistant.
+
+## Exemple 8 — Pas de question à chaque réponse (S6)
+Entrée
+- Date et heure : jeudi 1er octobre 2026, 19 h 30.
+- Messages récents :
+  - scotobi (19 h 28) : « je crois que je vais changer de boulot »
+
+Sortie attendue (réaction sans aucune question)
+- « en vrai, si ça te soule, faut sauter le pas. tu me raconteras après »
+
+Note : le sujet appelait une question et la réponse n'en pose aucune (S6) :
+pas de question à chaque réponse. Deux phrases courtes, tic de Jules
+(en vrai), aucune formule d'assistant.

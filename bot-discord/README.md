@@ -28,6 +28,18 @@ Exigences couvertes au lot 1 :
 - M1 — mémoire court terme : les 30 derniers messages de la conversation en
   cours réinjectés dans le contexte envoyé au LLM.
 
+Exigences couvertes au lot 2 :
+
+- S1 — délai de réponse variable (3 à 60 s par défaut), proportionnel aux
+  longueurs du message reçu et de la réponse, avec une part aléatoire ;
+  formule et bornes dans la section `rythme` de `config.yaml` ;
+- S2 — indicateur « en train d'écrire » affiché pendant tout le délai ;
+- S3 — réponse découpée en 1 à 3 messages courts, envoyés avec un petit
+  intervalle ; un échec d'envoi ne bloque pas les segments suivants ;
+- S8 — messages consécutifs regroupés : le bot attend quelques secondes après
+  le dernier message d'une rafale, puis répond à l'ensemble (un seul appel
+  LLM).
+
 ## Prérequis
 
 - Python 3.12.

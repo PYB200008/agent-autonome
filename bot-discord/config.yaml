@@ -3,7 +3,7 @@
 # défaut de `bot/config.py` (DEFAULT_CONFIG) ne servent que de secours de fusion
 # pour les clés absentes de ce fichier ; pour modifier un seuil, changer ce
 # fichier, jamais le code (exigence R8). Les sections des lots suivants sont
-# préparées en commentaires ; seules les sections actives du lot 1 sont lues.
+# préparées en commentaires en bas de fichier.
 
 # Mémoire court terme (M1)
 memoire:
@@ -28,6 +28,29 @@ llm:
   # Nombre maximal de tokens générés par réponse.
   max_tokens: 600
 
+# Rythme de réponse — lot 2 (S1-S3, S8)
+rythme:
+  # S1 — Délai minimal avant l'envoi d'une réponse, en secondes.
+  delai_min_secondes: 3
+  # S1 — Délai maximal avant l'envoi d'une réponse, en secondes.
+  delai_max_secondes: 60
+  # S1 — Poids (0 à 1) de la composante « longueurs » dans le calcul du délai ;
+  # le complément (1 - poids) est la part aléatoire. 0.6 = 60 % longueurs,
+  # 40 % aléatoire.
+  poids_longueur: 0.6
+  # S1 — Longueur totale de référence (message reçu + réponse, en caractères)
+  # à partir de laquelle la composante « longueurs » est saturée.
+  longueur_reference: 400
+  # S8 — Attente calme après le dernier message d'une rafale avant de répondre
+  # à l'ensemble, en secondes.
+  attente_regroupement_secondes: 3
+  # S3 — Nombre maximal de messages courts dans une réponse découpée.
+  max_messages_reponse: 3
+  # S3 — Longueur maximale d'un message de réponse, en caractères.
+  max_longueur_message: 300
+  # S3 — Intervalle entre l'envoi de deux messages d'une même réponse, en secondes.
+  intervalle_segments_secondes: 2
+
 # Base SQLite
 db:
   path: bot.db
@@ -43,12 +66,6 @@ prompts:
 # etats:
 #   seuil_pause_minutes: 10
 #   seuil_terminee_minutes: 120
-
-# Rythme de réponse — lot 2 (S1-S3, S8)
-# rythme:
-#   delai_min_secondes: 3
-#   delai_max_secondes: 60
-#   attente_regroupement_secondes: 5
 
 # Relances — lot 4 (R1-R5)
 # relances:

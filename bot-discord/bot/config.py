@@ -32,6 +32,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "base_url": "https://api.groq.com/openai/v1",
         "max_tokens": 600,
     },
+    "rythme": {
+        "delai_min_secondes": 3,
+        "delai_max_secondes": 60,
+        "poids_longueur": 0.6,
+        "longueur_reference": 400,
+        "attente_regroupement_secondes": 3,
+        "max_messages_reponse": 3,
+        "max_longueur_message": 300,
+        "intervalle_segments_secondes": 2,
+    },
     "db": {
         "path": "bot.db",
     },
@@ -61,6 +71,14 @@ class Settings:
     llm_model: str
     llm_base_url: str
     llm_max_tokens: int
+    rythme_delai_min_secondes: float
+    rythme_delai_max_secondes: float
+    rythme_poids_longueur: float
+    rythme_longueur_reference: int
+    rythme_attente_regroupement_secondes: float
+    rythme_max_messages_reponse: int
+    rythme_max_longueur_message: int
+    rythme_intervalle_segments_secondes: float
     db_path: Path
     persona_path: Path
     conversation_prompt_path: Path
@@ -129,6 +147,32 @@ def load_config(config_path: str | Path = "config.yaml", env: dict[str, str] | N
     if llm_max_tokens <= 0:
         raise ConfigError("llm.max_tokens doit être strictement positif")
 
+    # Rythme de réponse (lot 2, S1-S3, S8) : délais, découpage, regroupement.
+    rythme_delai_min = float(merged["rythme"]["delai_min_secondes"])
+    rythme_delai_max = float(merged["rythme"]["delai_max_secondes"])
+    if not (0.0 <= rythme_delai_min < rythme_delai_max):
+        raise ConfigError(
+            "rythme.delai_min_secondes doit être >= 0 et inférieur à rythme.delai_max_secondes"
+        )
+    rythme_poids_longueur = float(merged["rythme"]["poids_longueur"])
+    if not (0.0 <= rythme_poids_longueur <= 1.0):
+        raise ConfigError("rythme.poids_longueur doit être compris entre 0 et 1")
+    rythme_longueur_reference = int(merged["rythme"]["longueur_reference"])
+    if rythme_longueur_reference <= 0:
+        raise ConfigError("rythme.longueur_reference doit être strictement positif")
+    rythme_attente_regroupement = float(merged["rythme"]["attente_regroupement_secondes"])
+    if rythme_attente_regroupement < 0:
+        raise ConfigError("rythme.attente_regroupement_secondes doit être >= 0")
+    rythme_max_messages = int(merged["rythme"]["max_messages_reponse"])
+    if rythme_max_messages <= 0:
+        raise ConfigError("rythme.max_messages_reponse doit être strictement positif")
+    rythme_max_longueur = int(merged["rythme"]["max_longueur_message"])
+    if rythme_max_longueur <= 0:
+        raise ConfigError("rythme.max_longueur_message doit être strictement positif")
+    rythme_intervalle_segments = float(merged["rythme"]["intervalle_segments_secondes"])
+    if rythme_intervalle_segments < 0:
+        raise ConfigError("rythme.intervalle_segments_secondes doit être >= 0")
+
     base_dir = config_file.parent
 
     def resolve_path(value: Any) -> Path:
@@ -144,6 +188,14 @@ def load_config(config_path: str | Path = "config.yaml", env: dict[str, str] | N
         llm_model=llm_model,
         llm_base_url=llm_base_url,
         llm_max_tokens=llm_max_tokens,
+        rythme_delai_min_secondes=rythme_delai_min,
+        rythme_delai_max_secondes=rythme_delai_max,
+        rythme_poids_longueur=rythme_poids_longueur,
+        rythme_longueur_reference=rythme_longueur_reference,
+        rythme_attente_regroupement_secondes=rythme_attente_regroupement,
+        rythme_max_messages_reponse=rythme_max_messages,
+        rythme_max_longueur_message=rythme_max_longueur,
+        rythme_intervalle_segments_secondes=rythme_intervalle_segments,
         db_path=resolve_path(merged["db"]["path"]),
         persona_path=resolve_path(merged["prompts"]["persona_path"]),
         conversation_prompt_path=resolve_path(merged["prompts"]["conversation_path"]),
