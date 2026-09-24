@@ -1,5 +1,8 @@
 # Secrets — jamais commités
 .env
+clés.txt
+clé*.txt
+cles*.txt
 
 # Base de données SQLite
 *.db
