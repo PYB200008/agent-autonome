@@ -21,9 +21,21 @@
     "2": {
       "titre": "Il parle comme quelqu'un",
       "exigences": ["S1", "S2", "S3", "S6", "S7", "S8"],
-      "statut": "a_faire",
-      "tests": "a_faire",
-      "relecture_reviewer": "a_faire"
+      "statut": "termine",
+      "tests": "69 passed, ruff et mypy OK",
+      "relecture_reviewer": "CONFORME le 2026-09-24",
+      "livrables": [
+        "delai de réponse variable proportionnel + aléatoire (bot/rhythm.py, S1)",
+        "indicateur « en train d'écrire » pendant le délai (S2)",
+        "réponse découpée en 1 à 3 messages courts avec intervalle (S3)",
+        "regroupement des rafales : attente après le dernier message, un seul appel LLM (S8)",
+        "S6/S7 renforcés dans persona.md et prompts/conversation.md (8 exemples)",
+        "section rythme dans config.yaml (aucun seuil en dur, R8)"
+      ],
+      "points_de_vigilance_lot_suivant": [
+        "test d'imbrication : message arrivant pendant un traitement en cours (verrou _response_lock)",
+        "close() : suivre toutes les tâches de traitement annulées (ensemble plutôt qu'une seule référence)"
+      ]
     },
     "3": {
       "titre": "Il sent la fin",
