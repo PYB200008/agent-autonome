@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import discord
 import pytest  # type: ignore[import-untyped]
 
 from bot.config import Settings
@@ -17,7 +18,7 @@ from bot.db import Database
 from bot.discord_client import ConversationalBotClient
 from bot.llm import LLMClient
 
-from .fakes import FakeAuthor, FakeHandler, FakeMessage
+from .fakes import FakeAuthor, FakeChannel, FakeHandler, FakeMessage
 from .helpers import read_message_rows
 
 OTHER_USER_ID = 777777777777777777
@@ -30,6 +31,23 @@ async def test_guild_message_is_ignored(settings: Settings) -> None:
     client = ConversationalBotClient(settings, handler)
     message: Any = FakeMessage(
         author=FakeAuthor(settings.discord_user_id), content="salut", guild=object()
+    )
+    await client.on_message(message)
+    assert handler.calls == []
+    assert message.channel.sent == []
+
+
+@pytest.mark.asyncio
+async def test_group_dm_is_ignored(settings: Settings) -> None:
+    """Vérifie S4 et le périmètre « groupes exclus » : un DM de groupe (channel
+    de type ``group``, auteur autorisé, sans serveur) ne déclenche ni appel LLM
+    ni envoi."""
+    handler: Any = FakeHandler()
+    client = ConversationalBotClient(settings, handler)
+    message: Any = FakeMessage(
+        author=FakeAuthor(settings.discord_user_id),
+        content="salut",
+        channel=FakeChannel(discord.ChannelType.group),
     )
     await client.on_message(message)
     assert handler.calls == []

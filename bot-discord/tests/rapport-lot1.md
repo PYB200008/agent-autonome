@@ -3,6 +3,7 @@
 Date : 24 septembre 2026
 Auteur : tester
 Périmètre : socle du bot conversationnel Discord (DM filtré par ID, prompt persona, mémoire court terme).
+Version : 1.1 — ajout du test d'exclusion des DM de groupe (S4, périmètre « groupes exclus »), 31 tests.
 
 ## Exigences couvertes
 
@@ -21,7 +22,7 @@ Périmètre : socle du bot conversationnel Discord (DM filtré par ID, prompt pe
 
 | Fichier | Module testé | Tests |
 | --- | --- | --- |
-| `tests/test_discord_client.py` | `bot/discord_client.py` | 6 |
+| `tests/test_discord_client.py` | `bot/discord_client.py` | 7 |
 | `tests/test_conversation.py` | `bot/conversation.py` | 4 |
 | `tests/test_db.py` | `bot/db.py` | 5 |
 | `tests/test_llm.py` | `bot/llm.py` | 4 |
@@ -30,13 +31,14 @@ Périmètre : socle du bot conversationnel Discord (DM filtré par ID, prompt pe
 | `tests/test_config.py` | `bot/config.py` | 3 |
 | `tests/conftest.py`, `tests/fakes.py`, `tests/helpers.py` | support (fixtures, mocks) | — |
 
-Total : 30 tests. Structure prévue pour accueillir les lots 2 à 5 (un fichier par module, fixtures communes dans `conftest.py`).
+Total : 31 tests. Structure prévue pour accueillir les lots 2 à 5 (un fichier par module, fixtures communes dans `conftest.py`).
 
 ## Détail des tests par exigence
 
 ### Filtrage strict (S4 + sécurité)
 
 - `test_guild_message_is_ignored` — Vérifie S4 : un message de serveur ne déclenche ni LLM ni envoi.
+- `test_group_dm_is_ignored` — Vérifie S4 et le périmètre « groupes exclus » du cahier des charges : un DM de groupe (channel de type `group`, auteur autorisé, sans serveur) ne déclenche ni appel LLM ni envoi.
 - `test_dm_from_other_account_is_ignored` — Vérifie S4 et le critère d'acceptation : un autre compte ne reçoit aucune réponse.
 - `test_dm_from_bot_itself_is_ignored` — Vérifie S4 : le bot ignore ses propres messages, même avec l'identifiant autorisé.
 - `test_dm_authorized_is_processed_and_replied` — Vérifie S4 : un DM de l'utilisateur autorisé déclenche le traitement puis l'envoi.
@@ -79,7 +81,7 @@ Tous ces tests utilisent des objets messages simulés (`tests/fakes.py`) : aucun
 
 ```text
 $ python -m pytest tests -q
-30 passed, 1 warning in 1.10s
+31 passed, 1 warning in 1.04s
 ```
 
 Durée totale d'exécution environ 1 seconde : aucun test n'attend en temps réel. Un seul warning, sans lien avec le code testé (voir anomalies).
@@ -103,7 +105,8 @@ Success: no issues found in 19 source files
 1. **Stubs PyYAML manquants** : `mypy bot main.py` échouait sur `bot/config.py:16` (« Library stubs not installed for "yaml" »). Correctif trivial appliqué : ajout de `types-PyYAML>=6.0.0` dans `requirements.txt` (installé dans le venv). Aucune modification du code applicatif.
 2. **Warning pytest** : `DeprecationWarning: 'audioop' is deprecated` provient de `discord/player.py` (dépendance amont discord.py, Python 3.12). Sans lien avec le lot 1 ; aucun impact sur les tests.
 3. **Aucune modification du code applicatif** (`bot/`, `main.py`, `config.yaml`, `persona.md`, `prompts/`) n'a été nécessaire : le socle développé par bot-dev satisfait les tests du lot 1 tels quels.
-4. **Hors périmètre volontaire** : les états (C1-C6), le rythme (S1-S3, S6-S8) et les relances (R1-R8, y compris la persistance des relances planifiées) seront testés aux lots 2 à 4 ; la structure `tests/` (fixtures partagées, fakes, un fichier par module) est prête pour ces ajouts.
+4. **Suite à la relecture reviewer du lot 1** : l'exclusion explicite des DM de groupe demandée (`bot/discord_client.py`, filtre `message.channel.type != discord.ChannelType.private`) est couverte par le nouveau test `test_group_dm_is_ignored`. Le cas « DM privé autorisé → traité » reste vert (régression vérifiée dans la même série, 31 tests).
+5. **Hors périmètre volontaire** : les états (C1-C6), le rythme (S1-S3, S6-S8) et les relances (R1-R8, y compris la persistance des relances planifiées) seront testés aux lots 2 à 4 ; la structure `tests/` (fixtures partagées, fakes, un fichier par module) est prête pour ces ajouts.
 
 ## Critères d'acceptation du lot 1
 
