@@ -1,0 +1,64 @@
+{
+  "projet": "bot-conversationnel-discord",
+  "cahier_des_charges": "CAHIER_DES_CHARGES.md",
+  "derniere_mise_a_jour": "2026-09-24",
+  "lots": {
+    "1": {
+      "titre": "Il repose",
+      "exigences": ["S4", "S5", "M1"],
+      "statut": "en_cours",
+      "tests": "en_attente",
+      "relecture_reviewer": "en_attente",
+      "livrables": [
+        "persona.md",
+        "prompts/conversation.md",
+        "client discord.py (DM + intents)",
+        "filtre par ID scotobi",
+        "config .env + config.yaml",
+        "memoire court terme (30 messages, SQLite)"
+      ]
+    },
+    "2": {
+      "titre": "Il parle comme quelqu'un",
+      "exigences": ["S1", "S2", "S3", "S6", "S7", "S8"],
+      "statut": "a_faire",
+      "tests": "a_faire",
+      "relecture_reviewer": "a_faire"
+    },
+    "3": {
+      "titre": "Il sent la fin",
+      "exigences": ["C1", "C2", "C3", "C4", "C5", "C6", "M2"],
+      "statut": "a_faire",
+      "tests": "a_faire",
+      "relecture_reviewer": "a_faire"
+    },
+    "4": {
+      "titre": "Il revient",
+      "exigences": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"],
+      "statut": "a_faire",
+      "tests": "a_faire",
+      "relecture_reviewer": "a_faire"
+    },
+    "5": {
+      "titre": "Il se souvient",
+      "exigences": ["M3", "M4", "M5"],
+      "statut": "a_faire",
+      "tests": "a_faire",
+      "relecture_reviewer": "a_faire"
+    }
+  },
+  "critères_acceptation": {
+    "filtre_autre_compte_sans_reponse": false,
+    "aucune_reponse_avec_liste_titre_formule_assistant": false,
+    "10_relances_delais_tous_differents_sans_heures_calmes": false,
+    "arret_apres_2_relances_ignorees": false,
+    "relance_reference_un_sujet_reellement_aborde": false,
+    "persistance_relances_et_memoire_apres_redemarrage": false
+  },
+  "questions_ouvertes": {
+    "personnalite_prenom_caractere_sujets": "en_attente",
+    "le_bot_dit_il_quil_est_ia": "en_attente",
+    "fourchettes_delais_relance": "en_attente",
+    "hebergement_pc_ou_vps": "en_attente"
+  }
+}
