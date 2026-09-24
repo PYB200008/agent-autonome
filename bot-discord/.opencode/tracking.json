@@ -4,11 +4,11 @@
   "derniere_mise_a_jour": "2026-09-24",
   "lots": {
     "1": {
-      "titre": "Il repose",
+      "titre": "Il répond",
       "exigences": ["S4", "S5", "M1"],
-      "statut": "en_cours",
-      "tests": "en_attente",
-      "relecture_reviewer": "en_attente",
+      "statut": "termine",
+      "tests": "31 passed, ruff et mypy OK",
+      "relecture_reviewer": "CONFORME le 2026-09-24",
       "livrables": [
         "persona.md",
         "prompts/conversation.md",
