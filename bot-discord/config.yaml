@@ -1,0 +1,52 @@
+# Configuration du bot conversationnel Discord.
+# Aucune valeur de seuil n'est codée en dur dans le code : tout passe par ce
+# fichier (exigence R8). Les sections des lots suivants sont préparées en
+# commentaires ; seules les sections actives du lot 1 sont lues.
+
+# Mémoire court terme (M1)
+memoire:
+  # Nombre de derniers messages de la conversation réinjectés dans le
+  # contexte envoyé au LLM.
+  court_terme_max_messages: 30
+
+# Appel au LLM (lot 1)
+llm:
+  # Modèle rapide pour les réponses de conversation.
+  model: claude-haiku-4-5
+  # Nombre maximal de tokens générés par réponse.
+  max_tokens: 600
+
+# Base SQLite
+db:
+  path: bot.db
+
+# Fichiers de prompts, fournis par persona-designer (S4)
+prompts:
+  persona_path: persona.md
+  conversation_path: prompts/conversation.md
+
+# --- Sections préparées pour les lots suivants (à activer en temps voulu) ---
+
+# États de conversation — lot 3 (C2, C3)
+# etats:
+#   seuil_pause_minutes: 10
+#   seuil_terminee_minutes: 120
+
+# Rythme de réponse — lot 2 (S1-S3, S8)
+# rythme:
+#   delai_min_secondes: 3
+#   delai_max_secondes: 60
+#   attente_regroupement_secondes: 5
+
+# Relances — lot 4 (R1-R5)
+# relances:
+#   duree_min_heures: 3
+#   duree_mode_heures: 10
+#   duree_max_heures: 30
+#   heures_calmes_debut: 23
+#   heures_calmes_fin: 9
+#   heur_report_debut: 9
+#   heur_report_fin: 12
+#   delai_multiplier_apres_ignoree: 3
+#   max_relances_ignorees_consecutives: 2
+#   plafond_relances_par_jour: 2
