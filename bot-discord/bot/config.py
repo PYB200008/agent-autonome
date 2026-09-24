@@ -1,9 +1,10 @@
 """Chargement et validation de la configuration.
 
 Les secrets viennent de l'environnement (.env chargé par python-dotenv dans
-``main.py``) ; les seuils et chemins viennent de ``config.yaml``, fusionné avec
-des valeurs par défaut raisonnables. Aucune valeur de seuil n'est codée en dur
-dans les autres modules.
+``main.py``) ; les seuils et chemins viennent de ``config.yaml``, source
+opérationnelle. ``DEFAULT_CONFIG`` ne fournit qu'un secours de fusion pour les
+clés absentes du YAML : pour changer un seuil, modifier ``config.yaml``, jamais
+ce module. Aucune valeur de seuil n'est codée en dur dans les autres modules.
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ from typing import Any
 
 import yaml
 
-# Valeurs par défaut raisonnables, surchargées par config.yaml.
+# Secours de fusion pour les clés absentes de config.yaml (source opérationnelle).
 DEFAULT_CONFIG: dict[str, Any] = {
     "memoire": {
         "court_terme_max_messages": 30,

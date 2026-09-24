@@ -1,7 +1,9 @@
 # Configuration du bot conversationnel Discord.
-# Aucune valeur de seuil n'est codée en dur dans le code : tout passe par ce
-# fichier (exigence R8). Les sections des lots suivants sont préparées en
-# commentaires ; seules les sections actives du lot 1 sont lues.
+# Source opérationnelle : les valeurs de ce fichier font foi. Les valeurs par
+# défaut de `bot/config.py` (DEFAULT_CONFIG) ne servent que de secours de fusion
+# pour les clés absentes de ce fichier ; pour modifier un seuil, changer ce
+# fichier, jamais le code (exigence R8). Les sections des lots suivants sont
+# préparées en commentaires ; seules les sections actives du lot 1 sont lues.
 
 # Mémoire court terme (M1)
 memoire:

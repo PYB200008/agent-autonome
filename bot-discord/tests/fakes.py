@@ -10,6 +10,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any
 
+import discord
 from anthropic.types import TextBlock
 
 
@@ -54,9 +55,16 @@ class FakeAuthor:
 
 
 class FakeChannel:
-    """Canal de DM simulé : enregistre les envois sans réseau."""
+    """Canal de DM simulé : enregistre les envois sans réseau.
 
-    def __init__(self) -> None:
+    L'attribut ``type`` reproduit ``discord.ChannelType`` pour le filtrage
+    du client (DM privé accepté, DM de groupe exclu).
+    """
+
+    def __init__(
+        self, channel_type: discord.ChannelType = discord.ChannelType.private
+    ) -> None:
+        self.type = channel_type
         self.sent: list[str] = []
 
     async def send(self, content: str) -> None:

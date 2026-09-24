@@ -1,8 +1,9 @@
 """Client Discord : intents DM, filtrage strict et réponse en DM.
 
-Le bot ne répond qu'aux messages privés de l'utilisateur autorisé
-(``DISCORD_USER_ID`` dans .env). Tout message de serveur ou d'un autre compte
-est ignoré immédiatement, avant tout autre traitement (S4, sécurité).
+Le bot ne répond qu'aux messages privés (DM) de l'utilisateur autorisé
+(``DISCORD_USER_ID`` dans .env). Tout message de serveur, de DM de groupe ou
+d'un autre compte est ignoré immédiatement, avant tout autre traitement
+(S4, sécurité, périmètre « groupes exclus » du cahier des charges).
 """
 
 from __future__ import annotations
@@ -34,9 +35,13 @@ class ConversationalBotClient(discord.Client):
         logger.info("Connecté à Discord (DM uniquement, utilisateur cible %s)", self._config.discord_user_id)
 
     async def on_message(self, message: discord.Message) -> None:
-        # Filtrage strict : première ligne, ignore tout message hors DM de
-        # l'utilisateur autorisé (S4).
-        if message.guild is not None or message.author.id != self._config.discord_user_id:
+        # Filtrage strict : première ligne, ignore tout message hors DM privé
+        # de l'utilisateur autorisé (S4, périmètre « groupes exclus »).
+        if (
+            message.guild is not None
+            or message.channel.type != discord.ChannelType.private
+            or message.author.id != self._config.discord_user_id
+        ):
             return
         # Le bot ne répond jamais à ses propres messages.
         if message.author.bot:
