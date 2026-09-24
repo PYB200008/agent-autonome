@@ -101,7 +101,7 @@ La boucle de fond vérifie chaque minute les transitions (pause, fin) et les rel
 | --- | --- |
 | Langage | Python 3.12 |
 | Discord | discord.py 2.x, intents DM + `message_content` |
-| LLM | API Anthropic ; modèle rapide pour les réponses, même modèle pour résumés et détection de fin |
+| LLM | API Groq (compatible OpenAI) — décision utilisateur : pas de clé Anthropic ; modèle rapide pour les réponses, même modèle pour résumés et détection de fin |
 | Planification | `discord.ext.tasks` (boucle 60 s) |
 | Stockage | SQLite : tables `messages`, `conversations`, `resumes`, `faits`, `relances` |
 | Config | `.env` (secrets) + `config.yaml` (seuils, délais) + `persona.md` (personnalité) |

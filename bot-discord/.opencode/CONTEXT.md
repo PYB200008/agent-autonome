@@ -37,7 +37,7 @@ Règles : ne passer au lot suivant que lorsque les tests du lot courant passent 
 
 ## Stack
 
-Python 3.12 · discord.py 2.x (intents DM + `message_content`) · API Anthropic · `discord.ext.tasks` (boucle de fond 60 s) · SQLite (`messages`, `conversations`, `resumes`, `faits`, `relances`) · `.env` (secrets) + `config.yaml` (seuils) + `persona.md`. Un seul processus. Relances persistées en base pour survivre à un redémarrage. Horloge injectable (`now()` centralisée) pour les tests en temps simulé.
+Python 3.12 · discord.py 2.x (intents DM + `message_content`) · API Groq, compatible OpenAI (décision utilisateur) · `discord.ext.tasks` (boucle de fond 60 s) · SQLite (`messages`, `conversations`, `resumes`, `faits`, `relances`) · `.env` (secrets) + `config.yaml` (seuils) + `persona.md`. Un seul processus. Relances persistées en base pour survivre à un redémarrage. Horloge injectable (`now()` centralisée) pour les tests en temps simulé.
 
 ## Règles de format
 
