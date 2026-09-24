@@ -38,7 +38,9 @@ Exigences couvertes au lot 2 :
   intervalle ; un échec d'envoi ne bloque pas les segments suivants ;
 - S8 — messages consécutifs regroupés : le bot attend quelques secondes après
   le dernier message d'une rafale, puis répond à l'ensemble (un seul appel
-  LLM).
+  LLM). Le premier message d'une rafale subit l'attente cumulée : attente de
+  regroupement (`rythme.attente_regroupement_secondes`), puis délai de
+  réponse S1 (`rythme.delai_min_secondes` à `rythme.delai_max_secondes`).
 
 ## Prérequis
 

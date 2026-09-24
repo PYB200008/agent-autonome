@@ -76,7 +76,7 @@ class ConversationalBotClient(discord.Client):
 
     async def on_message(self, message: discord.Message) -> None:
         # Filtrage strict : première ligne, ignore tout message hors DM privé
-        # de l'utilisateur autorisé (S4, périmètre « groupes exclu »).
+        # de l'utilisateur autorisé (S4, périmètre « groupes exclus »).
         if (
             message.guild is not None
             or message.channel.type != discord.ChannelType.private
